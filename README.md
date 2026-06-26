@@ -2,27 +2,55 @@
 
 Go finance service for Airbar (Scenario B): ledger, escrow, Zibal PSP, wallet, withdrawal.
 
-**Status:** F0 skeleton — hexagonal layout, local stack, migrations baseline. Application code comes next.
+**Status:** F0 skeleton — Clean Architecture layout, local stack, migrations baseline.
 
-## Layout
+## Layout (Clean Architecture)
 
 ```text
-cmd/server/              # bootstrap (F0)
+cmd/server/                         # composition root / bootstrap (F0)
+
 internal/
-  config/                # env config (F0)
-  domain/                # entities + rules
-  application/             # use cases
-  adapters/
-    postgres/migrations/ # goose migrations (F0 baseline → F1+ domain)
-    postgres/repositories/
+  domain/                           # entities, value objects, repository interfaces
+    escrow/
+    payment/
+    ledger/
+    wallet/
+    withdrawal/
+
+  usecase/                          # application business rules (interactors)
+    escrow/                         # UC-01..08
+    payment/                        # UC-09..13
+    wallet/                         # UC-14..15
+    withdrawal/                     # UC-16..19
+    treasury/                       # UC-20
+    reconciliation/                 # UC-21..23
+    idempotency/                    # cross-cutting
+
+  delivery/                         # primary adapters (inbound)
+    grpc/handlers/
+    http/                           # /health/ready, Zibal callback
+
+  infrastructure/                   # secondary adapters (outbound)
+    config/
+    postgres/
+      migrations/
+      repository/
     redis/
     zibal/
-    grpc/handlers/
-  http/                  # /health/ready, Zibal callback
-proto/                   # gRPC contract (airbar_finance_v1.proto)
+
+proto/                              # gRPC contract (airbar_finance_v1.proto)
 ```
 
-See project docs: `docs/02-هسته-مالی-go.md` (in staging workspace).
+### Dependency rule
+
+```text
+delivery → usecase → domain ← infrastructure
+```
+
+- **domain** — no imports from other internal layers
+- **usecase** — depends on domain interfaces only
+- **delivery** — calls use cases; maps proto/HTTP ↔ DTOs
+- **infrastructure** — implements domain/usecase ports (postgres, redis, zibal)
 
 ## Prerequisites
 
@@ -47,7 +75,7 @@ make migrate-up
 
 ## Migrations
 
-Migrations live in `internal/adapters/postgres/migrations/`.
+Migrations live in `internal/infrastructure/postgres/migrations/`.
 
 | Migration        | Phase | Purpose              |
 |------------------|-------|----------------------|
@@ -61,10 +89,10 @@ System account codes are constants in code (F1.3), not DB seed rows.
 
 ## Next steps (F0)
 
-1. `config` loader from env
-2. Postgres + Redis clients
-3. gRPC `CheckReady` + HTTP `/health/ready`
-4. `cmd/server/main.go` bootstrap
+1. `infrastructure/config` — env loader
+2. Postgres + Redis clients in infrastructure
+3. gRPC `CheckReady` + HTTP `/health/ready` in delivery
+4. `cmd/server/main.go` — wire dependencies
 5. Enable CI: `go vet`, `go test`, `go build`
 
 ## CI
