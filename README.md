@@ -58,6 +58,24 @@ delivery → usecase → domain ← infrastructure
 - Docker + Docker Compose
 - [goose](https://github.com/pressly/goose) for migrations (`go install github.com/pressly/goose/v3/cmd/goose@latest`)
 
+## Configuration
+
+All runtime settings come from **environment variables**. There are no hardcoded defaults in code.
+
+| File | Purpose |
+|------|---------|
+| `.env.example` | Committed template — copy to `.env` for local dev |
+| `.env` | Local secrets and overrides — **never commit** (see `.gitignore`) |
+
+```bash
+cp .env.example .env
+# Edit .env if needed; production injects the same keys via your orchestrator.
+```
+
+Required variables: `DATABASE_URL`, `REDIS_URL`, `GRPC_PORT`, `HTTP_PORT`, `ZIBAL_SANDBOX`, `ZIBAL_MERCHANT`, `FINANCE_PUBLIC_BASE_URL`, `PLATFORM_FEE_PERCENT`.
+
+When running via `docker compose up airbar-finance`, `DATABASE_URL` and `REDIS_URL` are overridden for in-compose hostnames (`postgres-finance`, `redis`). Other keys still come from `.env`.
+
 ## Local stack
 
 ```bash

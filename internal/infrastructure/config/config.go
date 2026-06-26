@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	"github.com/joho/godotenv"
 )
 
 // Config holds environment-driven settings for the finance service.
+// All values are loaded from environment variables (or a local .env file).
+// Production deployments must inject env via the orchestrator — never rely on defaults in code.
 type Config struct {
 	DatabaseURL          string
 	RedisURL             string
@@ -18,51 +22,56 @@ type Config struct {
 	PlatformFeePercent   float64
 }
 
-// Load reads configuration from environment variables.
+// Load reads configuration from the process environment.
+// When a .env file exists (local dev), it is loaded first without overriding existing env vars.
 func Load() (Config, error) {
-	cfg := Config{
-		DatabaseURL:          os.Getenv("DATABASE_URL"),
-		RedisURL:             os.Getenv("REDIS_URL"),
-		FinancePublicBaseURL: os.Getenv("FINANCE_PUBLIC_BASE_URL"),
-		ZibalMerchant:        os.Getenv("ZIBAL_MERCHANT"),
-	}
+	_ = godotenv.Load()
 
-	if cfg.DatabaseURL == "" {
-		return cfg, fmt.Errorf("DATABASE_URL is required")
-	}
-	if cfg.RedisURL == "" {
-		return cfg, fmt.Errorf("REDIS_URL is required")
-	}
-	if cfg.FinancePublicBaseURL == "" {
-		return cfg, fmt.Errorf("FINANCE_PUBLIC_BASE_URL is required")
-	}
+	cfg := Config{}
 
-	grpcPort, err := envInt("GRPC_PORT", 50051)
+	databaseURL, err := requireString("DATABASE_URL")
 	if err != nil {
 		return cfg, err
 	}
-	httpPort, err := envInt("HTTP_PORT", 8080)
+	cfg.DatabaseURL = databaseURL
+
+	redisURL, err := requireString("REDIS_URL")
+	if err != nil {
+		return cfg, err
+	}
+	cfg.RedisURL = redisURL
+
+	grpcPort, err := requireInt("GRPC_PORT")
 	if err != nil {
 		return cfg, err
 	}
 	cfg.GRPCPort = grpcPort
+
+	httpPort, err := requireInt("HTTP_PORT")
+	if err != nil {
+		return cfg, err
+	}
 	cfg.HTTPPort = httpPort
 
-	zibalSandbox, err := envBool("ZIBAL_SANDBOX", false)
+	zibalSandbox, err := requireBool("ZIBAL_SANDBOX")
 	if err != nil {
 		return cfg, err
 	}
 	cfg.ZibalSandbox = zibalSandbox
 
-	if cfg.ZibalMerchant == "" {
-		if cfg.ZibalSandbox {
-			cfg.ZibalMerchant = "zibal"
-		} else {
-			return cfg, fmt.Errorf("ZIBAL_MERCHANT is required when ZIBAL_SANDBOX is false")
-		}
+	zibalMerchant, err := requireString("ZIBAL_MERCHANT")
+	if err != nil {
+		return cfg, err
 	}
+	cfg.ZibalMerchant = zibalMerchant
 
-	feePercent, err := envFloat("PLATFORM_FEE_PERCENT", 10)
+	financePublicBaseURL, err := requireString("FINANCE_PUBLIC_BASE_URL")
+	if err != nil {
+		return cfg, err
+	}
+	cfg.FinancePublicBaseURL = financePublicBaseURL
+
+	feePercent, err := requireFloat("PLATFORM_FEE_PERCENT")
 	if err != nil {
 		return cfg, err
 	}
@@ -71,10 +80,18 @@ func Load() (Config, error) {
 	return cfg, nil
 }
 
-func envInt(key string, defaultValue int) (int, error) {
-	raw := os.Getenv(key)
-	if raw == "" {
-		return defaultValue, nil
+func requireString(key string) (string, error) {
+	value := os.Getenv(key)
+	if value == "" {
+		return "", fmt.Errorf("%s is required", key)
+	}
+	return value, nil
+}
+
+func requireInt(key string) (int, error) {
+	raw, err := requireString(key)
+	if err != nil {
+		return 0, err
 	}
 	value, err := strconv.Atoi(raw)
 	if err != nil {
@@ -83,10 +100,10 @@ func envInt(key string, defaultValue int) (int, error) {
 	return value, nil
 }
 
-func envFloat(key string, defaultValue float64) (float64, error) {
-	raw := os.Getenv(key)
-	if raw == "" {
-		return defaultValue, nil
+func requireFloat(key string) (float64, error) {
+	raw, err := requireString(key)
+	if err != nil {
+		return 0, err
 	}
 	value, err := strconv.ParseFloat(raw, 64)
 	if err != nil {
@@ -95,10 +112,10 @@ func envFloat(key string, defaultValue float64) (float64, error) {
 	return value, nil
 }
 
-func envBool(key string, defaultValue bool) (bool, error) {
-	raw := os.Getenv(key)
-	if raw == "" {
-		return defaultValue, nil
+func requireBool(key string) (bool, error) {
+	raw, err := requireString(key)
+	if err != nil {
+		return false, err
 	}
 	value, err := strconv.ParseBool(raw)
 	if err != nil {

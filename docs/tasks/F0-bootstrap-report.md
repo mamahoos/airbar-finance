@@ -94,6 +94,7 @@ Stack: `postgres-finance` on host `5434`, Redis on host `6379` (existing local i
 
 - **Dependency rule:** `delivery` → `infrastructure` ports; no domain logic yet
 - **Readiness:** Both Postgres and Redis must respond to `Ping`; otherwise `ready=false` / HTTP 503
+- **Config:** All settings from env / `.env` (local); no hardcoded defaults in `config.Load()`
 - **Public HTTP surface:** Only `/health/ready` in F0 (Zibal callback in F4)
 - **Build:** `-buildvcs=false` in Docker/CI when `.git` is unavailable or incomplete inside build context
 

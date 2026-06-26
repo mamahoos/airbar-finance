@@ -31,6 +31,10 @@ services:
       - "8080:8080"
       - "50051:50051"
     env_file: .env
+    environment:
+      # Override connection URLs for in-compose service discovery (values still from .env for other keys).
+      DATABASE_URL: postgres://airbar:airbar@postgres-finance:5432/airbar_finance?sslmode=disable
+      REDIS_URL: redis://redis:6379/1
     depends_on:
       postgres-finance:
         condition: service_healthy
