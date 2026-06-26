@@ -1,8 +1,6 @@
 ---
-description: Use PRs for all changes; push .cursor rules directly to main
-alwaysApply: true
+alwaysApply: false
 ---
-
 # Git workflow — PR first
 
 ## Default (all code and docs)
