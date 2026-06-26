@@ -1,0 +1,35 @@
+---
+description: Use PRs for all changes; push .cursor rules directly to main
+alwaysApply: true
+---
+
+# Git workflow — PR first
+
+## Default (all code and docs)
+
+Never push commits directly to `main` or `origin/main`.
+
+1. Create a feature branch from `main` (e.g. `feat/...`, `fix/...`).
+2. Commit only the relevant changes.
+3. Push the **branch** to `origin` (`git push -u origin HEAD`).
+4. Open a pull request with `gh pr create` (title + summary + test plan).
+5. Wait for review/merge; do not force-push to `main`.
+
+Do not use `git push origin main` for application code, infra, docs, or CI.
+
+## Exception — shared Cursor config (`.cursor/**`)
+
+Changes under `.cursor/` (rules, skills, project settings) are **team-wide agent config**.
+
+For `.cursor/**` only:
+
+1. Commit on `main` (or merge quickly after a tiny PR if the repo requires it).
+2. Push directly to `origin/main` so every developer gets the same rules on pull.
+
+When a task touches both `.cursor/` and other files, split into two commits/branches: push `.cursor/` to `main`; put everything else in a PR.
+
+## PR checklist
+
+- `git status` / `git diff` before commit
+- PR describes **why**, not only what
+- Include a short test plan when behavior changes
