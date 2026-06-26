@@ -1,4 +1,4 @@
-MIGRATIONS_DIR := internal/adapters/postgres/migrations
+MIGRATIONS_DIR := internal/infrastructure/postgres/migrations
 DATABASE_URL ?= postgres://airbar:airbar@localhost:5434/airbar_finance?sslmode=disable
 
 .PHONY: up down migrate-up migrate-down migrate-status
