@@ -1,0 +1,281 @@
+syntax = "proto3";
+
+package airbar.finance.v1;
+
+option go_package = "github.com/airbar/finance/v1;financev1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+// Target inter-service contract: airbar-api (client) -> airbar-finance (server).
+// Staging today uses HTTP REST; gRPC is the canonical internal protocol.
+// Edge HTTP on finance remains for PSP callbacks (Zibal) only.
+
+service FinanceHealthService {
+  rpc CheckReady(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+service EscrowService {
+  rpc CreateEscrow(CreateEscrowRequest) returns (EscrowResponse);
+  rpc GetEscrow(GetEscrowRequest) returns (EscrowResponse);
+  rpc FundEscrow(FundEscrowRequest) returns (EscrowResponse);
+  rpc PayFromWallet(PayFromWalletRequest) returns (EscrowResponse);
+  rpc MarkDelivered(MarkDeliveredRequest) returns (EscrowResponse);
+  rpc FreezeEscrow(FreezeEscrowRequest) returns (EscrowResponse);
+  rpc ReleaseEscrow(ReleaseEscrowRequest) returns (EscrowResponse);
+  rpc RefundEscrow(RefundEscrowRequest) returns (EscrowResponse);
+  rpc PartialRefundEscrow(PartialRefundEscrowRequest) returns (EscrowResponse);
+}
+
+service PaymentOrderService {
+  rpc CreatePaymentOrder(CreatePaymentOrderRequest) returns (PaymentOrderResponse);
+  rpc GetPaymentOrder(GetPaymentOrderRequest) returns (PaymentOrderResponse);
+  rpc VerifyPaymentOrder(VerifyPaymentOrderRequest) returns (PaymentOrderResponse);
+  rpc CreateWalletTopupOrder(CreateWalletTopupRequest) returns (PaymentOrderResponse);
+  rpc VerifyWalletTopupOrder(VerifyPaymentOrderRequest) returns (PaymentOrderResponse);
+}
+
+service WalletService {
+  rpc GetWallet(GetWalletRequest) returns (WalletResponse);
+  rpc ListWalletTransactions(ListWalletTransactionsRequest) returns (WalletTransactionsResponse);
+}
+
+service WithdrawalService {
+  rpc CreateWithdrawal(CreateWithdrawalRequest) returns (WithdrawalResponse);
+  rpc ListWithdrawals(ListWithdrawalsRequest) returns (WithdrawalsResponse);
+  rpc ProcessWithdrawal(ProcessWithdrawalRequest) returns (WithdrawalResponse);
+  rpc RejectWithdrawal(RejectWithdrawalRequest) returns (WithdrawalResponse);
+}
+
+service TreasuryService {
+  rpc GetTreasurySummary(GetTreasuryRequest) returns (TreasurySummaryResponse);
+}
+
+service ReconciliationService {
+  rpc RunReconciliation(RunReconciliationRequest) returns (ReconciliationRunResponse);
+  rpc ListReconciliationRuns(ListReconciliationRunsRequest) returns (ReconciliationRunsResponse);
+  rpc GetReconciliationRun(GetReconciliationRunRequest) returns (ReconciliationRunResponse);
+}
+
+message RequestContext {
+  string request_id = 1;
+  string idempotency_key = 2;
+  string caller_service = 3;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  bool ready = 1;
+}
+
+message CreateEscrowRequest {
+  RequestContext context = 1;
+  string shipment_id = 2;
+  string carrier_user_id = 3;
+  string payer_user_id = 4;
+  string amount = 5;
+}
+
+message GetEscrowRequest {
+  string shipment_id = 1;
+}
+
+message FundEscrowRequest {
+  RequestContext context = 1;
+  string shipment_id = 2;
+  string payment_order_id = 3;
+}
+
+message PayFromWalletRequest {
+  RequestContext context = 1;
+  string shipment_id = 2;
+  string payer_user_id = 3;
+  string amount = 4;
+}
+
+message MarkDeliveredRequest {
+  RequestContext context = 1;
+  string shipment_id = 2;
+}
+
+message FreezeEscrowRequest {
+  RequestContext context = 1;
+  string shipment_id = 2;
+}
+
+message ReleaseEscrowRequest {
+  RequestContext context = 1;
+  string shipment_id = 2;
+}
+
+message RefundEscrowRequest {
+  RequestContext context = 1;
+  string shipment_id = 2;
+}
+
+message PartialRefundEscrowRequest {
+  RequestContext context = 1;
+  string shipment_id = 2;
+  string refund_amount = 3;
+}
+
+message EscrowResponse {
+  string id = 1;
+  string shipment_id = 2;
+  string carrier_user_id = 3;
+  string payer_user_id = 4;
+  string amount = 5;
+  string status = 6;
+  string payment_order_id = 7;
+  string funding_source = 8;
+  google.protobuf.Timestamp funded_at = 9;
+  google.protobuf.Timestamp released_at = 10;
+  google.protobuf.Timestamp refunded_at = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+message CreatePaymentOrderRequest {
+  RequestContext context = 1;
+  string shipment_id = 2;
+  string payer_user_id = 3;
+  string amount = 4;
+  string callback_url = 5;
+  string success_url = 6;
+  string failure_url = 7;
+  string description = 8;
+  string agreed_price = 9;
+}
+
+message GetPaymentOrderRequest {
+  string order_id = 1;
+}
+
+message VerifyPaymentOrderRequest {
+  RequestContext context = 1;
+  string order_id = 2;
+  string authority = 3;
+}
+
+message CreateWalletTopupRequest {
+  RequestContext context = 1;
+  string user_id = 2;
+  string amount = 3;
+  string callback_url = 4;
+  string success_url = 5;
+  string failure_url = 6;
+  string description = 7;
+}
+
+message PaymentOrderResponse {
+  string id = 1;
+  string shipment_id = 2;
+  string payer_user_id = 3;
+  string purpose = 4;
+  string amount = 5;
+  string status = 6;
+  string authority = 7;
+  string redirect_url = 8;
+  google.protobuf.Timestamp verified_at = 9;
+  google.protobuf.Timestamp created_at = 10;
+}
+
+message GetWalletRequest {
+  string user_id = 1;
+  string currency = 2;
+}
+
+message WalletResponse {
+  string user_id = 1;
+  string currency = 2;
+  string balance = 3;
+  string account_code = 4;
+}
+
+message ListWalletTransactionsRequest {
+  string user_id = 1;
+  string currency = 2;
+}
+
+message WalletTransactionItem {
+  string journal_id = 1;
+  string ref_type = 2;
+  string ref_id = 3;
+  string description = 4;
+  string debit = 5;
+  string credit = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message WalletTransactionsResponse {
+  repeated WalletTransactionItem items = 1;
+}
+
+message CreateWithdrawalRequest {
+  RequestContext context = 1;
+  string user_id = 2;
+  string amount = 3;
+  string destination_iban = 4;
+  bool user_active = 5;
+  bool financial_kyc_approved = 6;
+}
+
+message ListWithdrawalsRequest {
+  string user_id = 1;
+  string status = 2;
+}
+
+message ProcessWithdrawalRequest {
+  RequestContext context = 1;
+  string withdrawal_id = 2;
+}
+
+message RejectWithdrawalRequest {
+  RequestContext context = 1;
+  string withdrawal_id = 2;
+  string reason = 3;
+}
+
+message WithdrawalResponse {
+  string id = 1;
+  string user_id = 2;
+  string amount = 3;
+  string status = 4;
+  string provider_ref = 5;
+  google.protobuf.Timestamp processed_at = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message WithdrawalsResponse {
+  repeated WithdrawalResponse items = 1;
+}
+
+message GetTreasuryRequest {
+  string currency = 1;
+}
+
+message TreasurySummaryResponse {
+  string currency = 1;
+  google.protobuf.Struct accounts = 2;
+}
+
+message RunReconciliationRequest {}
+
+message ListReconciliationRunsRequest {}
+
+message GetReconciliationRunRequest {
+  string run_id = 1;
+}
+
+message ReconciliationRunResponse {
+  string id = 1;
+  string status = 2;
+  google.protobuf.Struct findings = 3;
+  google.protobuf.Timestamp started_at = 4;
+  google.protobuf.Timestamp completed_at = 5;
+}
+
+message ReconciliationRunsResponse {
+  repeated ReconciliationRunResponse items = 1;
+}
