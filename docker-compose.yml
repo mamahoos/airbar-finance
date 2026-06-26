@@ -18,25 +18,24 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "6381:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
 
-  # Uncomment after cmd/server is implemented (F0 bootstrap).
-  # airbar-finance:
-  #   build: .
-  #   ports:
-  #     - "8080:8080"
-  #     - "50051:50051"
-  #   env_file: .env
-  #   depends_on:
-  #     postgres-finance:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
+  airbar-finance:
+    build: .
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+    env_file: .env
+    depends_on:
+      postgres-finance:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   postgres_finance_data:

@@ -2,7 +2,7 @@
 
 Go finance service for Airbar (Scenario B): ledger, escrow, Zibal PSP, wallet, withdrawal.
 
-**Status:** F0 skeleton — Clean Architecture layout, local stack, migrations baseline.
+**Status:** F0 bootstrap — gRPC `CheckReady`, HTTP `/health/ready`, Docker/CI green.
 
 ## Layout (Clean Architecture)
 
@@ -69,9 +69,9 @@ make migrate-up
 | Service           | Port  | Notes                    |
 |-------------------|-------|--------------------------|
 | postgres-finance  | 5434  | DB `airbar_finance`      |
-| redis             | 6379  | idempotency cache (F8+)  |
-| gRPC (planned)    | 50051 | after F0 bootstrap       |
-| HTTP (planned)    | 8080  | health + Zibal callback  |
+| redis             | 6381  | maps to container 6379; idempotency cache (F8+) |
+| gRPC              | 50051 | `FinanceHealthService.CheckReady` |
+| HTTP              | 8080  | `/health/ready` (+ Zibal callback in F4) |
 
 ## Migrations
 

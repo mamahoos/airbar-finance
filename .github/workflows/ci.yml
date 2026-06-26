@@ -7,7 +7,7 @@ on:
 
 jobs:
   verify:
-    name: go mod verify
+    name: go verify
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +19,11 @@ jobs:
       - name: Verify module
         run: go mod verify
 
-      # Enable after F0 bootstrap (main.go, tests):
-      # - run: go vet ./...
-      # - run: go test ./...
-      # - run: go build -o /dev/null ./cmd/server
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test ./...
+
+      - name: Build
+        run: go build -buildvcs=false -o /dev/null ./cmd/server
