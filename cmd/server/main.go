@@ -27,6 +27,7 @@ import (
 	treasuryuc "github.com/mamahoos/airbar-finance/internal/usecase/treasury"
 	walletuc "github.com/mamahoos/airbar-finance/internal/usecase/wallet"
 	withdrawaluc "github.com/mamahoos/airbar-finance/internal/usecase/withdrawal"
+	idempotencyuc "github.com/mamahoos/airbar-finance/internal/usecase/idempotency"
 )
 
 func main() {
@@ -69,6 +70,9 @@ func run(logger *slog.Logger) error {
 	providerEventRepo := repository.NewProviderEventRepository(dbPool)
 
 	withdrawalRepo := repository.NewWithdrawalRepository(dbPool)
+	idempotencyRepo := repository.NewIdempotencyRepository(dbPool)
+	idempotencyCache := redisinfra.NewIdempotencyCache(redisClient)
+	idempotencyGuard := idempotencyuc.NewGuard(idempotencyRepo, idempotencyCache)
 
 	zibalClient := zibal.NewClient(cfg)
 
@@ -147,6 +151,7 @@ func run(logger *slog.Logger) error {
 	grpcServer, err := deliverygrpc.NewServer(
 		cfg.GRPCPort,
 		checker,
+		idempotencyGuard,
 		escrowHandler,
 		paymentHandler,
 		walletHandler,

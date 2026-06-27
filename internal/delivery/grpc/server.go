@@ -5,8 +5,10 @@ import (
 	"net"
 
 	"github.com/mamahoos/airbar-finance/internal/delivery/grpc/handlers"
+	grpcidempotency "github.com/mamahoos/airbar-finance/internal/delivery/grpc/idempotency"
 	financev1 "github.com/mamahoos/airbar-finance/internal/gen/financev1"
 	"github.com/mamahoos/airbar-finance/internal/infrastructure/health"
+	idempotencyuc "github.com/mamahoos/airbar-finance/internal/usecase/idempotency"
 	"google.golang.org/grpc"
 )
 
@@ -20,6 +22,7 @@ type Server struct {
 func NewServer(
 	port int,
 	checker *health.Checker,
+	idempotencyGuard *idempotencyuc.Guard,
 	escrowHandler *handlers.EscrowHandler,
 	paymentHandler *handlers.PaymentHandler,
 	walletHandler *handlers.WalletHandler,
@@ -32,7 +35,9 @@ func NewServer(
 		return nil, err
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(grpcidempotency.UnaryInterceptor(idempotencyGuard)),
+	)
 	financev1.RegisterFinanceHealthServiceServer(grpcServer, handlers.NewHealthHandler(checker))
 	if escrowHandler != nil {
 		financev1.RegisterEscrowServiceServer(grpcServer, escrowHandler)
