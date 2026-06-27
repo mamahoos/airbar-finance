@@ -2,7 +2,9 @@
 
 Go finance service for Airbar (Scenario B): ledger, escrow, Zibal PSP, wallet, withdrawal.
 
-**Status:** F0 bootstrap — gRPC `CheckReady`, HTTP `/health/ready`, Docker/CI green.
+**Status:** F0 bootstrap + F1 ledger core — health checks, env-driven config, `PostJournal`, Docker/CI green.
+
+Full docs: [docs/README.md](docs/README.md) · [docs/development.md](docs/development.md)
 
 ## Layout (Clean Architecture)
 
@@ -56,64 +58,11 @@ delivery → usecase → domain ← infrastructure
 
 - Go 1.22+
 - Docker + Docker Compose
-- [goose](https://github.com/pressly/goose) for migrations (`go install github.com/pressly/goose/v3/cmd/goose@latest`)
 
-## Configuration
-
-All runtime settings come from **environment variables**. There are no hardcoded defaults in code.
-
-| File | Purpose |
-|------|---------|
-| `.env.example` | Committed template — copy to `.env` for local dev |
-| `.env` | Local secrets and overrides — **never commit** (see `.gitignore`) |
-
-```bash
-cp .env.example .env
-# Edit .env if needed; production injects the same keys via your orchestrator.
-```
-
-Required variables: `DATABASE_URL`, `REDIS_URL`, `GRPC_PORT`, `HTTP_PORT`, `ZIBAL_SANDBOX`, `ZIBAL_MERCHANT`, `FINANCE_PUBLIC_BASE_URL`, `PLATFORM_FEE_PERCENT`.
-
-When running via `docker compose up airbar-finance`, `DATABASE_URL` and `REDIS_URL` are overridden for in-compose hostnames (`postgres-finance`, `redis`). Other keys still come from `.env`.
-
-## Local stack
-
-```bash
-cp .env.example .env
-make up
-make migrate-up
-```
-
-| Service           | Port  | Notes                    |
-|-------------------|-------|--------------------------|
-| postgres-finance  | 5434  | DB `airbar_finance`      |
-| redis             | 6381  | maps to container 6379; idempotency cache (F8+) |
-| gRPC              | 50051 | `FinanceHealthService.CheckReady` |
-| HTTP              | 8080  | `/health/ready` (+ Zibal callback in F4) |
-
-## Migrations
-
-Migrations live in `internal/infrastructure/postgres/migrations/`.
-
-| Migration        | Phase | Purpose              |
-|------------------|-------|----------------------|
-| `00001_baseline` | F0    | `finance` schema     |
-| ledger tables    | F1    | journals + entries   |
-| wallet_accounts  | F2    | lazy wallet create   |
-| escrows          | F3    | escrow state machine |
-| payment_orders   | F4    | Zibal integration    |
-
-System account codes are constants in code (F1.3), not DB seed rows.
-
-## Next steps (F0)
-
-1. `infrastructure/config` — env loader
-2. Postgres + Redis clients in infrastructure
-3. gRPC `CheckReady` + HTTP `/health/ready` in delivery
-4. `cmd/server/main.go` — wire dependencies
-5. Enable CI: `go vet`, `go test`, `go build`
+**Setup, env, Docker, migrations, tests:** [docs/development.md](docs/development.md)  
+**Phase reports:** [docs/README.md](docs/README.md)
 
 ## CI
 
-- `ci.yml` — `go mod verify` (build/test when code lands)
+- `ci.yml` — `go mod verify`, `go vet`, `go test`, `go build`
 - `notify-events.yml` — Telegram repo notifications

@@ -3,7 +3,9 @@ DATABASE_URL ?= postgres://airbar:airbar@localhost:5434/airbar_finance?sslmode=d
 PROTO_DIR := proto
 GEN_DIR := internal/gen/financev1
 
-.PHONY: up down migrate-up migrate-down migrate-status proto build test vet verify
+TEST_DATABASE_URL ?= $(DATABASE_URL)
+
+.PHONY: up down migrate-up migrate-down migrate-status proto build test test-integration vet verify
 
 up:
 	docker compose up -d postgres-finance redis
@@ -40,3 +42,6 @@ vet:
 	go vet ./...
 
 verify: vet test build
+
+test-integration:
+	TEST_DATABASE_URL="$(TEST_DATABASE_URL)" go test -tags=integration ./internal/infrastructure/postgres/repository/ -run Integration -v

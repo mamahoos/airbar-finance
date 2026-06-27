@@ -30,7 +30,7 @@ No ledger, escrow, or payment business logic in this phase.
 | Component | Path | Description |
 |-----------|------|-------------|
 | Main | `cmd/server/main.go` | Starts gRPC + HTTP servers; graceful shutdown on SIGINT/SIGTERM |
-| Config | `internal/infrastructure/config/` | Loads required env vars; defaults for ports and platform fee |
+| Config | `internal/infrastructure/config/` | Loads **all** required env vars; optional `.env` via godotenv (local only) |
 | Postgres | `internal/infrastructure/postgres/` | `pgxpool` connection factory |
 | Redis | `internal/infrastructure/redis/` | Client from URL + ping helper |
 | Readiness | `internal/infrastructure/health/` | `Ready()` pings Postgres and Redis |
@@ -57,7 +57,7 @@ No ledger, escrow, or payment business logic in this phase.
 
 | Package | Tests |
 |---------|-------|
-| `internal/infrastructure/config` | Required fields validation; default ports and Zibal sandbox merchant |
+| `internal/infrastructure/config` | Required fields validation; full env parsing from `.env.example` keys |
 | `internal/delivery/http` | Ready → 200; not ready → 503 |
 
 ---
@@ -68,7 +68,7 @@ No ledger, escrow, or payment business logic in this phase.
 
 ```text
 go vet ./...     — OK
-go test ./...    — OK (4 tests)
+go test ./...    — OK (unit tests)
 go build ./cmd/server — OK
 ```
 
@@ -100,9 +100,9 @@ Stack: `postgres-finance` on host `5434`, Redis on host `6379` (existing local i
 
 ---
 
-## Out of scope (next phases)
+## Out of scope (superseded by F1+)
 
-- F1 Ledger (`PostJournal`, migrations)
+- ~~F1 Ledger~~ — see [F1-ledger-report.md](./F1-ledger-report.md)
 - F3 Escrow use cases
 - F4 Zibal + payment orders
 - F8 Idempotency middleware
