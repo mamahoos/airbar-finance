@@ -29,7 +29,7 @@ func (m *mockRepo) SumByAccount(ctx context.Context, accountCode domainledger.Ac
 }
 
 func TestPostJournalSuccess(t *testing.T) {
-	uc := NewPostJournal(&mockRepo{})
+	uc := NewPostJournal(&mockRepo{}, nil)
 
 	journal, err := uc.Execute(context.Background(), PostJournalInput{
 		RefType: domainledger.RefTypeWalletToEscrow,
@@ -48,7 +48,7 @@ func TestPostJournalSuccess(t *testing.T) {
 }
 
 func TestPostJournalUnbalanced(t *testing.T) {
-	uc := NewPostJournal(&mockRepo{})
+	uc := NewPostJournal(&mockRepo{}, nil)
 
 	_, err := uc.Execute(context.Background(), PostJournalInput{
 		RefType: domainledger.RefTypeWalletToEscrow,
@@ -68,7 +68,7 @@ func TestPostJournalDuplicate(t *testing.T) {
 		createFn: func(_ context.Context, _ *domainledger.Journal) error {
 			return domainledger.ErrDuplicateJournal
 		},
-	})
+	}, nil)
 
 	_, err := uc.Execute(context.Background(), PostJournalInput{
 		RefType: domainledger.RefTypeWalletToEscrow,

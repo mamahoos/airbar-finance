@@ -8,7 +8,7 @@ Engineering docs for the Go finance service (Scenario B).
 |-------|--------|--------|
 | F0 Bootstrap | Done | [tasks/F0-bootstrap-report.md](./tasks/F0-bootstrap-report.md) |
 | F1 Ledger Core | Done | [tasks/F1-ledger-report.md](./tasks/F1-ledger-report.md) |
-| F2 Wallet accounts | Planned | — |
+| F2 Wallet accounts | Done | [tasks/F2-wallet-report.md](./tasks/F2-wallet-report.md) |
 | F3 Escrow | Planned | — |
 
 Parent monorepo roadmap: [`../../docs/09-roadmap-هسته-مالی.md`](../../docs/09-roadmap-هسته-مالی.md) (if checked out alongside `airbar.app-staging`).

@@ -57,6 +57,7 @@ Production deployments must inject env via the orchestrator — not via `.env` o
 |------|-------|---------|
 | `00001_baseline.sql` | F0 | `finance` schema |
 | `00002_ledger.sql` | F1 | `ledger_journals`, `ledger_entries` |
+| `00003_wallet_accounts.sql` | F2 | `wallet_accounts` (no balance column) |
 
 ```bash
 make migrate-up

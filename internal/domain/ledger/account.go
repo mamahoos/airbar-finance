@@ -4,6 +4,11 @@ import "fmt"
 
 const currencyIRT = "IRT"
 
+const (
+	walletAccountPrefix = "USER:"
+	walletAccountSuffix = ":IRT:WALLET_LIABILITY"
+)
+
 // AccountCode identifies a ledger account (SSOT for balances via SUM(entries)).
 type AccountCode string
 
@@ -27,4 +32,23 @@ func UserWalletAccount(userID string) AccountCode {
 // ShipmentEscrowAccount returns the escrow liability account for a shipment.
 func ShipmentEscrowAccount(shipmentID string) AccountCode {
 	return AccountCode(fmt.Sprintf("SHIPMENT:%s:%s:ESCROW", shipmentID, currencyIRT))
+}
+
+// ParseUserIDFromWalletAccount extracts user_id from a wallet liability account code.
+func ParseUserIDFromWalletAccount(code AccountCode) (string, bool) {
+	raw := code.String()
+	if len(raw) <= len(walletAccountPrefix)+len(walletAccountSuffix) {
+		return "", false
+	}
+	if raw[:len(walletAccountPrefix)] != walletAccountPrefix {
+		return "", false
+	}
+	if raw[len(raw)-len(walletAccountSuffix):] != walletAccountSuffix {
+		return "", false
+	}
+	userID := raw[len(walletAccountPrefix) : len(raw)-len(walletAccountSuffix)]
+	if userID == "" {
+		return "", false
+	}
+	return userID, true
 }

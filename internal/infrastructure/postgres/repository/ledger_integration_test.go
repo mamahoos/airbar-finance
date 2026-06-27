@@ -29,7 +29,7 @@ func TestLedgerRepositoryPostJournalIntegration(t *testing.T) {
 	defer pool.Close()
 
 	repo := NewLedgerRepository(pool)
-	uc := ledgeruc.NewPostJournal(repo)
+	uc := ledgeruc.NewPostJournal(repo, nil)
 
 	shipmentID := fmt.Sprintf("integration-sh-%s", uuid.NewString()[:8])
 	userID := fmt.Sprintf("user-a-%s", uuid.NewString()[:8])
