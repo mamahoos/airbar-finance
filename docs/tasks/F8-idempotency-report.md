@@ -17,7 +17,7 @@ Deduplicate mutating finance commands with Postgres `idempotency_records`, Redis
 
 | ID | Task | Status |
 |----|------|--------|
-| F8.1 | Migration `00008_idempotency_records.sql` | Done |
+| F8.1 | Migration `00009_idempotency_records.sql` | Done |
 | F8.2 | Idempotency middleware on all mutating RPCs | Done |
 | F8.3 | Redis cache `idempotency:{key}` TTL 24h | Done |
 | F8.4 | gRPC error mapping: Validation, Conflict, NotFound | Done |
