@@ -28,6 +28,10 @@ func (m *mockRepo) SumByAccount(ctx context.Context, accountCode domainledger.Ac
 	return 0, 0, nil
 }
 
+func (m *mockRepo) ListByAccount(_ context.Context, _ domainledger.AccountCode) ([]domainledger.AccountEntry, error) {
+	return nil, nil
+}
+
 func TestPostJournalSuccess(t *testing.T) {
 	uc := NewPostJournal(&mockRepo{}, nil)
 

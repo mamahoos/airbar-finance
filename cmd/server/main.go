@@ -70,6 +70,8 @@ func run(logger *slog.Logger) error {
 	ensureWallet := walletuc.NewEnsureWalletAccount(walletRepo)
 	postJournal := ledgeruc.NewPostJournal(ledgerRepo, ensureWallet)
 	getBalance := walletuc.NewGetBalance(ledgerRepo)
+	getWallet := walletuc.NewGetWallet(getBalance)
+	listWalletTransactions := walletuc.NewListWalletTransactions(ledgerRepo)
 
 	createEscrow := escrowuc.NewCreateEscrow(escrowRepo)
 	getEscrow := escrowuc.NewGetEscrow(escrowRepo)
@@ -110,7 +112,9 @@ func run(logger *slog.Logger) error {
 		verifyWalletTopupOrder,
 	)
 
-	grpcServer, err := deliverygrpc.NewServer(cfg.GRPCPort, checker, escrowHandler, paymentHandler)
+	walletHandler := handlers.NewWalletHandler(getWallet, listWalletTransactions)
+
+	grpcServer, err := deliverygrpc.NewServer(cfg.GRPCPort, checker, escrowHandler, paymentHandler, walletHandler)
 	if err != nil {
 		return err
 	}

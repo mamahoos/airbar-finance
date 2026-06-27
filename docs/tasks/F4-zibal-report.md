@@ -54,3 +54,5 @@ go build ./cmd/server                                 — OK
 ## Next phase
 
 **F5 — Wallet queries:** GetWallet, ListWalletTransactions, gRPC WalletService.
+
+**F6 — Withdrawal:** migration `withdrawals`, UC-16..19.

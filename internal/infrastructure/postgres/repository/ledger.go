@@ -93,6 +93,44 @@ func (r *LedgerRepository) SumByAccount(ctx context.Context, accountCode domainl
 	return debit, credit, nil
 }
 
+// ListByAccount returns ledger lines for an account joined with journal metadata.
+func (r *LedgerRepository) ListByAccount(ctx context.Context, accountCode domainledger.AccountCode) ([]domainledger.AccountEntry, error) {
+	rows, err := r.pool.Query(ctx, `
+		SELECT j.id, j.ref_type, j.ref_id, j.description, e.debit, e.credit, j.created_at
+		FROM finance.ledger_entries e
+		INNER JOIN finance.ledger_journals j ON j.id = e.journal_id
+		WHERE e.account_code = $1
+		ORDER BY j.created_at DESC, e.created_at DESC
+	`, accountCode.String())
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var entries []domainledger.AccountEntry
+	for rows.Next() {
+		var entry domainledger.AccountEntry
+		var refType string
+		if err := rows.Scan(
+			&entry.JournalID,
+			&refType,
+			&entry.RefID,
+			&entry.Description,
+			&entry.Debit,
+			&entry.Credit,
+			&entry.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		entry.RefType = domainledger.RefType(refType)
+		entries = append(entries, entry)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return entries, nil
+}
+
 func isUniqueViolation(err error) bool {
 	var pgErr *pgconn.PgError
 	return errors.As(err, &pgErr) && pgErr.Code == "23505"
