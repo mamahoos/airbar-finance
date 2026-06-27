@@ -7,7 +7,18 @@ const currencyIRT = "IRT"
 const (
 	walletAccountPrefix = "USER:"
 	walletAccountSuffix = ":IRT:WALLET_LIABILITY"
+	escrowAccountSuffix = ":IRT:ESCROW"
 )
+
+// WalletAccountLikePattern matches all user wallet liability accounts.
+func WalletAccountLikePattern() string {
+	return walletAccountPrefix + "%" + walletAccountSuffix
+}
+
+// EscrowAccountLikePattern matches all shipment escrow accounts.
+func EscrowAccountLikePattern() string {
+	return "SHIPMENT:%" + escrowAccountSuffix
+}
 
 // AccountCode identifies a ledger account (SSOT for balances via SUM(entries)).
 type AccountCode string

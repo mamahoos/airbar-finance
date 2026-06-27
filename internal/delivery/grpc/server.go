@@ -24,6 +24,8 @@ func NewServer(
 	paymentHandler *handlers.PaymentHandler,
 	walletHandler *handlers.WalletHandler,
 	withdrawalHandler *handlers.WithdrawalHandler,
+	treasuryHandler *handlers.TreasuryHandler,
+	reconciliationHandler *handlers.ReconciliationHandler,
 ) (*Server, error) {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
@@ -43,6 +45,12 @@ func NewServer(
 	}
 	if withdrawalHandler != nil {
 		financev1.RegisterWithdrawalServiceServer(grpcServer, withdrawalHandler)
+	}
+	if treasuryHandler != nil {
+		financev1.RegisterTreasuryServiceServer(grpcServer, treasuryHandler)
+	}
+	if reconciliationHandler != nil {
+		financev1.RegisterReconciliationServiceServer(grpcServer, reconciliationHandler)
 	}
 
 	return &Server{

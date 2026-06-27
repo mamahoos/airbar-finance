@@ -93,6 +93,35 @@ func (r *LedgerRepository) SumByAccount(ctx context.Context, accountCode domainl
 	return debit, credit, nil
 }
 
+// SumGlobal returns total debits and credits across all ledger entries.
+func (r *LedgerRepository) SumGlobal(ctx context.Context) (int64, int64, error) {
+	var debit int64
+	var credit int64
+	err := r.pool.QueryRow(ctx, `
+		SELECT COALESCE(SUM(debit), 0), COALESCE(SUM(credit), 0)
+		FROM finance.ledger_entries
+	`).Scan(&debit, &credit)
+	if err != nil {
+		return 0, 0, err
+	}
+	return debit, credit, nil
+}
+
+// SumByAccountLike returns sums for accounts matching a SQL LIKE pattern.
+func (r *LedgerRepository) SumByAccountLike(ctx context.Context, pattern string) (int64, int64, error) {
+	var debit int64
+	var credit int64
+	err := r.pool.QueryRow(ctx, `
+		SELECT COALESCE(SUM(debit), 0), COALESCE(SUM(credit), 0)
+		FROM finance.ledger_entries
+		WHERE account_code LIKE $1
+	`, pattern).Scan(&debit, &credit)
+	if err != nil {
+		return 0, 0, err
+	}
+	return debit, credit, nil
+}
+
 // ListByAccount returns ledger lines for an account joined with journal metadata.
 func (r *LedgerRepository) ListByAccount(ctx context.Context, accountCode domainledger.AccountCode) ([]domainledger.AccountEntry, error) {
 	rows, err := r.pool.Query(ctx, `

@@ -2,7 +2,7 @@
 
 Go finance service for Airbar (Scenario B): ledger, escrow, Zibal PSP, wallet, withdrawal.
 
-**Status:** F0–F6 done — bootstrap through withdrawal lifecycle + gRPC.
+**Status:** F0–F7 done — bootstrap through treasury/reconciliation + gRPC.
 
 Full docs: [docs/README.md](docs/README.md) · [docs/development.md](docs/development.md)
 

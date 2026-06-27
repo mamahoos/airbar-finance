@@ -28,6 +28,14 @@ func (m *mockRepo) SumByAccount(ctx context.Context, accountCode domainledger.Ac
 	return 0, 0, nil
 }
 
+func (m *mockRepo) SumGlobal(_ context.Context) (int64, int64, error) {
+	return 0, 0, nil
+}
+
+func (m *mockRepo) SumByAccountLike(_ context.Context, _ string) (int64, int64, error) {
+	return 0, 0, nil
+}
+
 func (m *mockRepo) ListByAccount(_ context.Context, _ domainledger.AccountCode) ([]domainledger.AccountEntry, error) {
 	return nil, nil
 }

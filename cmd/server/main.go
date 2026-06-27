@@ -23,6 +23,8 @@ import (
 	escrowuc "github.com/mamahoos/airbar-finance/internal/usecase/escrow"
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
 	paymentuc "github.com/mamahoos/airbar-finance/internal/usecase/payment"
+	reconuc "github.com/mamahoos/airbar-finance/internal/usecase/reconciliation"
+	treasuryuc "github.com/mamahoos/airbar-finance/internal/usecase/treasury"
 	walletuc "github.com/mamahoos/airbar-finance/internal/usecase/wallet"
 	withdrawaluc "github.com/mamahoos/airbar-finance/internal/usecase/withdrawal"
 )
@@ -122,6 +124,12 @@ func run(logger *slog.Logger) error {
 	processWithdrawal := withdrawaluc.NewProcessWithdrawal(withdrawalRepo)
 	rejectWithdrawal := withdrawaluc.NewRejectWithdrawal(dbPool, withdrawalRepo, postJournal)
 
+	getTreasurySummary := treasuryuc.NewGetTreasurySummary(ledgerRepo)
+	reconciliationRepo := repository.NewReconciliationRepository(dbPool)
+	runReconciliation := reconuc.NewRunReconciliation(ledgerRepo, reconciliationRepo)
+	listReconciliationRuns := reconuc.NewListReconciliationRuns(reconciliationRepo)
+	getReconciliationRun := reconuc.NewGetReconciliationRun(reconciliationRepo)
+
 	withdrawalHandler := handlers.NewWithdrawalHandler(
 		createWithdrawal,
 		listWithdrawals,
@@ -129,7 +137,23 @@ func run(logger *slog.Logger) error {
 		rejectWithdrawal,
 	)
 
-	grpcServer, err := deliverygrpc.NewServer(cfg.GRPCPort, checker, escrowHandler, paymentHandler, walletHandler, withdrawalHandler)
+	treasuryHandler := handlers.NewTreasuryHandler(getTreasurySummary)
+	reconciliationHandler := handlers.NewReconciliationHandler(
+		runReconciliation,
+		listReconciliationRuns,
+		getReconciliationRun,
+	)
+
+	grpcServer, err := deliverygrpc.NewServer(
+		cfg.GRPCPort,
+		checker,
+		escrowHandler,
+		paymentHandler,
+		walletHandler,
+		withdrawalHandler,
+		treasuryHandler,
+		reconciliationHandler,
+	)
 	if err != nil {
 		return err
 	}
