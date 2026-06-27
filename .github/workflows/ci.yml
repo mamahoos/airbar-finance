@@ -4,26 +4,198 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GO_VERSION: "1.22"
+  GOFLAGS: "-buildvcs=false"
+  # Ephemeral Postgres in CI only — not a production credential.
+  CI_DB_PASSWORD: ci_ephemeral_db_password
 
 jobs:
-  verify:
-    name: go verify
+  changes:
+    name: detect changes
     runs-on: ubuntu-latest
+    outputs:
+      go: ${{ steps.filter.outputs.go }}
+      ci: ${{ steps.filter.outputs.ci }}
     steps:
       - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            go:
+              - '**/*.go'
+              - 'go.mod'
+              - 'go.sum'
+              - 'proto/**'
+              - 'internal/infrastructure/postgres/migrations/**'
+              - 'Makefile'
+              - 'Dockerfile'
+              - 'docker-compose.yml'
+            ci:
+              - '.github/**'
 
+  # --- Group 1: fast static checks (parallel) ---
+  mod-verify:
+    name: go mod verify
+    needs: changes
+    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.ci == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.22"
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: go.sum
+      - run: go mod verify
+      - run: go mod download
 
-      - name: Verify module
-        run: go mod verify
+  vet:
+    name: go vet
+    needs: changes
+    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.ci == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: go.sum
+      - run: go vet ./...
 
-      - name: Vet
-        run: go vet ./...
+  # --- Group 2: unit tests + build (parallel) ---
+  unit-test:
+    name: unit tests
+    needs: changes
+    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.ci == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: go.sum
+      - name: Run unit tests
+        run: go test ./... -count=1 -coverprofile=coverage.out
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-coverage
+          path: coverage.out
+          retention-days: 7
 
-      - name: Test
-        run: go test ./...
+  build:
+    name: build
+    needs: changes
+    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.ci == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: go.sum
+      - run: go build -o /dev/null ./cmd/server
+      - run: go build -o /dev/null ./...
 
-      - name: Build
-        run: go build -buildvcs=false -o /dev/null ./cmd/server
+  # --- Group 3: integration tests (Postgres + migrations) ---
+  integration:
+    name: integration tests
+    needs: changes
+    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.ci == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TEST_DATABASE_URL: postgres://ci_user:${{ env.CI_DB_PASSWORD }}@localhost:5432/airbar_finance_test?sslmode=disable
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: airbar_finance_test
+          POSTGRES_USER: ci_user
+          POSTGRES_PASSWORD: ${{ env.CI_DB_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: go.sum
+      - name: Install goose
+        run: go install github.com/pressly/goose/v3/cmd/goose@v3.24.1
+      - name: Run migrations
+        run: goose -dir internal/infrastructure/postgres/migrations postgres "$TEST_DATABASE_URL" up
+      - name: Run integration tests
+        run: go test -tags=integration ./internal/infrastructure/postgres/repository/ -run Integration -count=1 -v
+
+  # --- Group 4: security ---
+  security:
+    name: govulncheck
+    needs: changes
+    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.ci == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: go.sum
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
+      - name: Scan for known vulnerabilities
+        run: govulncheck ./...
+
+  # --- Final quality gate (all groups must pass) ---
+  quality-gate:
+    name: quality gate
+    needs: [mod-verify, vet, unit-test, build, integration, security]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require all checks
+        run: |
+          check() {
+            local name="$1"
+            local result="$2"
+            if [[ "$result" == "skipped" ]]; then
+              echo "SKIP: $name (no relevant changes)"
+              return 0
+            fi
+            if [[ "$result" != "success" ]]; then
+              echo "FAIL: $name ($result)"
+              exit 1
+            fi
+            echo "OK: $name"
+          }
+
+          check mod-verify "${{ needs.mod-verify.result }}"
+          check vet "${{ needs.vet.result }}"
+          check unit-test "${{ needs.unit-test.result }}"
+          check build "${{ needs.build.result }}"
+          check integration "${{ needs.integration.result }}"
+          check security "${{ needs.security.result }}"
