@@ -1,0 +1,56 @@
+---
+description: Commit and open PR as rasoul azizi; never merge or close PRs — PR only
+alwaysApply: true
+---
+
+# Commit + PR only (rasoul azizi)
+
+## Agent deliverable = PR, not merge
+
+After work is verified at a **logical gate**, the agent stops at an **open PR**. Humans review and merge on GitHub.
+
+**Do:**
+1. Feature branch from `main` (`feat/...`, `fix/...`, `chore/...`)
+2. `git status` / `git diff` — only intended changes
+3. Commit as **rasoul azizi** (never change global `git config`):
+
+```bash
+git commit --author="rasoul azizi <rasoul.azizi@users.noreply.github.com>" -m "$(cat <<'EOF'
+Summary line.
+
+EOF
+)"
+```
+
+4. `git push -u origin HEAD`
+5. `gh pr create` with summary + test plan
+6. Return the **PR URL** to the user
+
+**Never push to `main`** — including CI, docs, `.cursor/**`, and infra.
+
+## NEVER merge or accept
+
+Under **no circumstances** merge or complete a PR on the user's behalf:
+
+- Do **not** run `gh pr merge` (merge / squash / rebase)
+- Do **not** run `git checkout main && git merge ... && git push origin main`
+- Do **not** fast-forward or merge feature branches into `main` locally then push
+- Do **not** tell the user "I merged it" or treat merge as the agent's job
+- Do **not** use GitHub API/UI to approve or accept a PR
+
+Merge and accept are **human-only**, after review.
+
+## NEVER close a PR
+
+- Do **not** run `gh pr close`
+- Do **not** close via API or automation
+
+Open PR → push follow-up commits to the same branch if fixes needed → stop.
+
+## Logical gates (examples)
+
+- Phase/task complete with tests green
+- CI workflow change validated
+- Bug fix with regression test
+
+Do not commit half-verified work or unrelated drive-by changes.

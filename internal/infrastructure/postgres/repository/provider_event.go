@@ -47,6 +47,16 @@ func (r *ProviderEventRepository) Create(ctx context.Context, event *domainprovi
 	return nil
 }
 
+// CountByPaymentOrderID returns provider events linked to a payment order.
+func (r *ProviderEventRepository) CountByPaymentOrderID(ctx context.Context, paymentOrderID string) (int64, error) {
+	var count int64
+	err := r.querier(ctx).QueryRow(ctx, `
+		SELECT COUNT(*) FROM finance.provider_events
+		WHERE payment_order_id = $1
+	`, paymentOrderID).Scan(&count)
+	return count, err
+}
+
 func (r *ProviderEventRepository) querier(ctx context.Context) pgxQuerier {
 	if tx, ok := pg.TxFromContext(ctx); ok {
 		return tx

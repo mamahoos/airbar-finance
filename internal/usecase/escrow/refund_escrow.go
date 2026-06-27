@@ -9,6 +9,7 @@ import (
 	domainledger "github.com/mamahoos/airbar-finance/internal/domain/ledger"
 	pg "github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 // RefundEscrowInput is the application input for UC-07.
@@ -22,6 +23,7 @@ type RefundEscrow struct {
 	escrowRepo  domainescrow.Repository
 	postJournal *ledgeruc.PostJournal
 	ledger      LedgerBalanceReader
+	audit       *audituc.Emitter
 }
 
 // NewRefundEscrow creates the RefundEscrow use case.
@@ -30,12 +32,14 @@ func NewRefundEscrow(
 	escrowRepo domainescrow.Repository,
 	postJournal *ledgeruc.PostJournal,
 	ledger LedgerBalanceReader,
+	audit *audituc.Emitter,
 ) *RefundEscrow {
 	return &RefundEscrow{
 		pool:        pool,
 		escrowRepo:  escrowRepo,
 		postJournal: postJournal,
 		ledger:      ledger,
+		audit:       audit,
 	}
 }
 
@@ -82,6 +86,7 @@ func (uc *RefundEscrow) Execute(ctx context.Context, input RefundEscrowInput) (*
 		if err := uc.escrowRepo.Update(txCtx, escrow); err != nil {
 			return err
 		}
+		emitEscrowStatus(txCtx, uc.audit, escrow)
 		result = escrow
 		return nil
 	})

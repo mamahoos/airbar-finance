@@ -28,6 +28,7 @@ import (
 	walletuc "github.com/mamahoos/airbar-finance/internal/usecase/wallet"
 	withdrawaluc "github.com/mamahoos/airbar-finance/internal/usecase/withdrawal"
 	idempotencyuc "github.com/mamahoos/airbar-finance/internal/usecase/idempotency"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 func main() {
@@ -73,6 +74,8 @@ func run(logger *slog.Logger) error {
 	idempotencyRepo := repository.NewIdempotencyRepository(dbPool)
 	idempotencyCache := redisinfra.NewIdempotencyCache(redisClient)
 	idempotencyGuard := idempotencyuc.NewGuard(idempotencyRepo, idempotencyCache)
+	financeEventRepo := repository.NewFinanceEventRepository(dbPool)
+	auditEmitter := audituc.NewEmitter(financeEventRepo)
 
 	zibalClient := zibal.NewClient(cfg)
 
@@ -82,23 +85,23 @@ func run(logger *slog.Logger) error {
 	getWallet := walletuc.NewGetWallet(getBalance)
 	listWalletTransactions := walletuc.NewListWalletTransactions(ledgerRepo)
 
-	createEscrow := escrowuc.NewCreateEscrow(escrowRepo)
+	createEscrow := escrowuc.NewCreateEscrow(escrowRepo, auditEmitter)
 	getEscrow := escrowuc.NewGetEscrow(escrowRepo)
-	fundEscrow := escrowuc.NewFundEscrow(dbPool, escrowRepo, postJournal)
-	payFromWallet := escrowuc.NewPayFromWallet(dbPool, escrowRepo, postJournal, getBalance)
-	markDelivered := escrowuc.NewMarkDelivered(escrowRepo)
-	freezeEscrow := escrowuc.NewFreezeEscrow(escrowRepo)
-	releaseEscrow := escrowuc.NewReleaseEscrow(dbPool, escrowRepo, postJournal, ledgerRepo, cfg.PlatformFeePercent)
-	refundEscrow := escrowuc.NewRefundEscrow(dbPool, escrowRepo, postJournal, ledgerRepo)
-	partialRefundEscrow := escrowuc.NewPartialRefundEscrow(dbPool, escrowRepo, postJournal, ledgerRepo)
+	fundEscrow := escrowuc.NewFundEscrow(dbPool, escrowRepo, postJournal, auditEmitter)
+	payFromWallet := escrowuc.NewPayFromWallet(dbPool, escrowRepo, postJournal, getBalance, auditEmitter)
+	markDelivered := escrowuc.NewMarkDelivered(escrowRepo, auditEmitter)
+	freezeEscrow := escrowuc.NewFreezeEscrow(escrowRepo, auditEmitter)
+	releaseEscrow := escrowuc.NewReleaseEscrow(dbPool, escrowRepo, postJournal, ledgerRepo, cfg.PlatformFeePercent, auditEmitter)
+	refundEscrow := escrowuc.NewRefundEscrow(dbPool, escrowRepo, postJournal, ledgerRepo, auditEmitter)
+	partialRefundEscrow := escrowuc.NewPartialRefundEscrow(dbPool, escrowRepo, postJournal, ledgerRepo, auditEmitter)
 
-	verifyOrder := paymentuc.NewVerifyOrder(dbPool, paymentRepo, providerEventRepo, zibalClient, fundEscrow, postJournal)
-	createPaymentOrder := paymentuc.NewCreatePaymentOrder(paymentRepo, escrowRepo, providerEventRepo, zibalClient, cfg.FinancePublicBaseURL)
+	verifyOrder := paymentuc.NewVerifyOrder(dbPool, paymentRepo, providerEventRepo, zibalClient, fundEscrow, postJournal, auditEmitter)
+	createPaymentOrder := paymentuc.NewCreatePaymentOrder(paymentRepo, escrowRepo, providerEventRepo, zibalClient, cfg.FinancePublicBaseURL, auditEmitter)
 	getPaymentOrder := paymentuc.NewGetPaymentOrder(paymentRepo)
 	verifyPaymentOrder := paymentuc.NewVerifyPaymentOrder(verifyOrder)
-	createWalletTopupOrder := paymentuc.NewCreateWalletTopupOrder(paymentRepo, providerEventRepo, zibalClient, cfg.FinancePublicBaseURL)
+	createWalletTopupOrder := paymentuc.NewCreateWalletTopupOrder(paymentRepo, providerEventRepo, zibalClient, cfg.FinancePublicBaseURL, auditEmitter)
 	verifyWalletTopupOrder := paymentuc.NewVerifyWalletTopupOrder(verifyOrder)
-	failPaymentOrder := paymentuc.NewFailPaymentOrder(paymentRepo, providerEventRepo)
+	failPaymentOrder := paymentuc.NewFailPaymentOrder(paymentRepo, providerEventRepo, auditEmitter)
 	handleCallback := paymentuc.NewHandleCallback(verifyOrder, failPaymentOrder, providerEventRepo)
 
 	escrowHandler := handlers.NewEscrowHandler(
@@ -123,10 +126,10 @@ func run(logger *slog.Logger) error {
 
 	walletHandler := handlers.NewWalletHandler(getWallet, listWalletTransactions)
 
-	createWithdrawal := withdrawaluc.NewCreateWithdrawal(dbPool, withdrawalRepo, postJournal, getBalance)
+	createWithdrawal := withdrawaluc.NewCreateWithdrawal(dbPool, withdrawalRepo, postJournal, getBalance, auditEmitter)
 	listWithdrawals := withdrawaluc.NewListWithdrawals(withdrawalRepo)
-	processWithdrawal := withdrawaluc.NewProcessWithdrawal(withdrawalRepo)
-	rejectWithdrawal := withdrawaluc.NewRejectWithdrawal(dbPool, withdrawalRepo, postJournal)
+	processWithdrawal := withdrawaluc.NewProcessWithdrawal(withdrawalRepo, auditEmitter)
+	rejectWithdrawal := withdrawaluc.NewRejectWithdrawal(dbPool, withdrawalRepo, postJournal, auditEmitter)
 
 	getTreasurySummary := treasuryuc.NewGetTreasurySummary(ledgerRepo)
 	reconciliationRepo := repository.NewReconciliationRepository(dbPool)

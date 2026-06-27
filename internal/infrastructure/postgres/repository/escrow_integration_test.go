@@ -39,12 +39,12 @@ func TestEscrowWalletFlowIntegration(t *testing.T) {
 	postJournal := ledgeruc.NewPostJournal(ledgerRepo, ensureWallet)
 	getBalance := walletuc.NewGetBalance(ledgerRepo)
 
-	createEscrow := escrowuc.NewCreateEscrow(escrowRepo)
-	payFromWallet := escrowuc.NewPayFromWallet(pool, escrowRepo, postJournal, getBalance)
-	markDelivered := escrowuc.NewMarkDelivered(escrowRepo)
-	releaseEscrow := escrowuc.NewReleaseEscrow(pool, escrowRepo, postJournal, ledgerRepo, 10)
-	freezeEscrow := escrowuc.NewFreezeEscrow(escrowRepo)
-	refundEscrow := escrowuc.NewRefundEscrow(pool, escrowRepo, postJournal, ledgerRepo)
+	createEscrow := escrowuc.NewCreateEscrow(escrowRepo, nil)
+	payFromWallet := escrowuc.NewPayFromWallet(pool, escrowRepo, postJournal, getBalance, nil)
+	markDelivered := escrowuc.NewMarkDelivered(escrowRepo, nil)
+	releaseEscrow := escrowuc.NewReleaseEscrow(pool, escrowRepo, postJournal, ledgerRepo, 10, nil)
+	freezeEscrow := escrowuc.NewFreezeEscrow(escrowRepo, nil)
+	refundEscrow := escrowuc.NewRefundEscrow(pool, escrowRepo, postJournal, ledgerRepo, nil)
 
 	suffix := uuid.NewString()[:8]
 	shipmentID := fmt.Sprintf("sh-%s", suffix)

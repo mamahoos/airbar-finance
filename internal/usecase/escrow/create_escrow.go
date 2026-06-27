@@ -5,6 +5,7 @@ import (
 	"time"
 
 	domainescrow "github.com/mamahoos/airbar-finance/internal/domain/escrow"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 // CreateEscrowInput is the application input for UC-01.
@@ -17,12 +18,13 @@ type CreateEscrowInput struct {
 
 // CreateEscrow creates a shipment escrow in CREATED status.
 type CreateEscrow struct {
-	repo domainescrow.Repository
+	repo   domainescrow.Repository
+	audit  *audituc.Emitter
 }
 
 // NewCreateEscrow creates the CreateEscrow use case.
-func NewCreateEscrow(repo domainescrow.Repository) *CreateEscrow {
-	return &CreateEscrow{repo: repo}
+func NewCreateEscrow(repo domainescrow.Repository, audit *audituc.Emitter) *CreateEscrow {
+	return &CreateEscrow{repo: repo, audit: audit}
 }
 
 // Execute validates input and persists a new escrow.
@@ -45,6 +47,7 @@ func (uc *CreateEscrow) Execute(ctx context.Context, input CreateEscrowInput) (*
 	if err := uc.repo.Create(ctx, escrow); err != nil {
 		return nil, err
 	}
+	_ = uc.audit.EmitEscrowCreated(ctx, escrow.ID, escrow.ShipmentID, string(escrow.Status))
 	return escrow, nil
 }
 

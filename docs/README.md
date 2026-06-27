@@ -15,6 +15,7 @@ Engineering docs for the Go finance service (Scenario B).
 | F6 Withdrawal | Done | [tasks/F6-withdrawal-report.md](./tasks/F6-withdrawal-report.md) |
 | F7 Treasury + Reconciliation | Done | [tasks/F7-treasury-reconciliation-report.md](./tasks/F7-treasury-reconciliation-report.md) |
 | F8 Idempotency | Done | [tasks/F8-idempotency-report.md](./tasks/F8-idempotency-report.md) |
+| F9 Audit | Done | [tasks/F9-audit-report.md](./tasks/F9-audit-report.md) |
 
 Parent monorepo roadmap: [`../../docs/09-roadmap-هسته-مالی.md`](../../docs/09-roadmap-هسته-مالی.md) (if checked out alongside `airbar.app-staging`).
 

@@ -38,9 +38,9 @@ func TestWithdrawalReserveProcessRejectIntegration(t *testing.T) {
 	ensureWallet := walletuc.NewEnsureWalletAccount(walletRepo)
 	postJournal := ledgeruc.NewPostJournal(ledgerRepo, ensureWallet)
 	getBalance := walletuc.NewGetBalance(ledgerRepo)
-	createWithdrawal := withdrawaluc.NewCreateWithdrawal(pool, withdrawalRepo, postJournal, getBalance)
-	processWithdrawal := withdrawaluc.NewProcessWithdrawal(withdrawalRepo)
-	rejectWithdrawal := withdrawaluc.NewRejectWithdrawal(pool, withdrawalRepo, postJournal)
+	createWithdrawal := withdrawaluc.NewCreateWithdrawal(pool, withdrawalRepo, postJournal, getBalance, nil)
+	processWithdrawal := withdrawaluc.NewProcessWithdrawal(withdrawalRepo, nil)
+	rejectWithdrawal := withdrawaluc.NewRejectWithdrawal(pool, withdrawalRepo, postJournal, nil)
 
 	processUser := fmt.Sprintf("wd-process-%s", uuid.NewString()[:8])
 	rejectUser := fmt.Sprintf("wd-reject-%s", uuid.NewString()[:8])

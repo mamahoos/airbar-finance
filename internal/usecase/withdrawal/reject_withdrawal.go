@@ -9,6 +9,7 @@ import (
 	domainwithdrawal "github.com/mamahoos/airbar-finance/internal/domain/withdrawal"
 	pg "github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 // RejectWithdrawalInput is the application input for UC-19.
@@ -22,6 +23,7 @@ type RejectWithdrawal struct {
 	pool        *pgxpool.Pool
 	withdrawals domainwithdrawal.Repository
 	postJournal *ledgeruc.PostJournal
+	audit       *audituc.Emitter
 }
 
 // NewRejectWithdrawal creates the RejectWithdrawal use case.
@@ -29,11 +31,13 @@ func NewRejectWithdrawal(
 	pool *pgxpool.Pool,
 	withdrawals domainwithdrawal.Repository,
 	postJournal *ledgeruc.PostJournal,
+	audit *audituc.Emitter,
 ) *RejectWithdrawal {
 	return &RejectWithdrawal{
 		pool:        pool,
 		withdrawals: withdrawals,
 		postJournal: postJournal,
+		audit:       audit,
 	}
 }
 
@@ -73,6 +77,7 @@ func (uc *RejectWithdrawal) Execute(ctx context.Context, input RejectWithdrawalI
 		if err := uc.withdrawals.Update(txCtx, withdrawal); err != nil {
 			return err
 		}
+		_ = uc.audit.EmitWithdrawalStatusChanged(txCtx, withdrawal.ID, string(withdrawal.Status))
 		result = withdrawal
 		return nil
 	})

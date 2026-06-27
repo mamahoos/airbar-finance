@@ -56,7 +56,7 @@ func TestProcessWithdrawalFromPending(t *testing.T) {
 			"wd-1": {ID: "wd-1", UserID: "user-1", Amount: 1000, Status: domainwithdrawal.StatusPending},
 		},
 	}
-	uc := NewProcessWithdrawal(repo)
+	uc := NewProcessWithdrawal(repo, nil)
 
 	result, err := uc.Execute(context.Background(), ProcessWithdrawalInput{WithdrawalID: "wd-1"})
 	if err != nil {
@@ -68,7 +68,7 @@ func TestProcessWithdrawalFromPending(t *testing.T) {
 }
 
 func TestCreateWithdrawalRejectsInactiveUser(t *testing.T) {
-	uc := NewCreateWithdrawal(nil, nil, nil, nil)
+	uc := NewCreateWithdrawal(nil, nil, nil, nil, nil)
 	_, err := uc.Execute(context.Background(), CreateWithdrawalInput{
 		UserID:          "user-1",
 		Amount:          1000,

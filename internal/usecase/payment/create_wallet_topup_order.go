@@ -7,6 +7,7 @@ import (
 	domainpayment "github.com/mamahoos/airbar-finance/internal/domain/payment"
 	domainprovider "github.com/mamahoos/airbar-finance/internal/domain/provider"
 	"github.com/mamahoos/airbar-finance/internal/infrastructure/zibal"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 // CreateWalletTopupOrderInput is the application input for UC-12.
@@ -24,6 +25,7 @@ type CreateWalletTopupOrder struct {
 	events      domainprovider.Repository
 	zibal       ZibalGateway
 	callbackURL string
+	audit       *audituc.Emitter
 }
 
 // NewCreateWalletTopupOrder creates the CreateWalletTopupOrder use case.
@@ -32,12 +34,14 @@ func NewCreateWalletTopupOrder(
 	events domainprovider.Repository,
 	zibalClient ZibalGateway,
 	publicBaseURL string,
+	audit *audituc.Emitter,
 ) *CreateWalletTopupOrder {
 	return &CreateWalletTopupOrder{
 		orders:      orders,
 		events:      events,
 		zibal:       zibalClient,
 		callbackURL: CallbackURL(publicBaseURL),
+		audit:       audit,
 	}
 }
 
@@ -62,6 +66,7 @@ func (uc *CreateWalletTopupOrder) Execute(ctx context.Context, input CreateWalle
 	if err := uc.orders.Create(ctx, order); err != nil {
 		return nil, err
 	}
+	_ = uc.audit.EmitPaymentCreated(ctx, order.ID, string(order.Purpose), string(order.Status))
 
 	result, err := uc.zibal.Request(ctx, zibal.RequestInput{
 		Amount:      order.Amount,
@@ -72,6 +77,7 @@ func (uc *CreateWalletTopupOrder) Execute(ctx context.Context, input CreateWalle
 	if err != nil {
 		order.Status = domainpayment.StatusFailed
 		_ = uc.orders.Update(ctx, order)
+		_ = uc.audit.EmitPaymentStatusChanged(ctx, order.ID, string(order.Status))
 		return nil, err
 	}
 

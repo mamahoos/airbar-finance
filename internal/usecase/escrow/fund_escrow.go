@@ -9,6 +9,7 @@ import (
 	domainledger "github.com/mamahoos/airbar-finance/internal/domain/ledger"
 	pg "github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 // FundEscrowInput is the application input for internal PSP funding.
@@ -22,11 +23,12 @@ type FundEscrow struct {
 	pool        *pgxpool.Pool
 	escrowRepo  domainescrow.Repository
 	postJournal *ledgeruc.PostJournal
+	audit       *audituc.Emitter
 }
 
 // NewFundEscrow creates the FundEscrow use case.
-func NewFundEscrow(pool *pgxpool.Pool, escrowRepo domainescrow.Repository, postJournal *ledgeruc.PostJournal) *FundEscrow {
-	return &FundEscrow{pool: pool, escrowRepo: escrowRepo, postJournal: postJournal}
+func NewFundEscrow(pool *pgxpool.Pool, escrowRepo domainescrow.Repository, postJournal *ledgeruc.PostJournal, audit *audituc.Emitter) *FundEscrow {
+	return &FundEscrow{pool: pool, escrowRepo: escrowRepo, postJournal: postJournal, audit: audit}
 }
 
 // Execute posts PSP_FUND_ESCROW and transitions escrow to FUNDED.
@@ -84,5 +86,6 @@ func (uc *FundEscrow) execute(ctx context.Context, input FundEscrowInput) (*doma
 	if err := uc.escrowRepo.Update(ctx, escrow); err != nil {
 		return nil, err
 	}
+	emitEscrowStatus(ctx, uc.audit, escrow)
 	return escrow, nil
 }

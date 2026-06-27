@@ -4,6 +4,7 @@ import (
 	"context"
 
 	domainescrow "github.com/mamahoos/airbar-finance/internal/domain/escrow"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 // FreezeEscrowInput is the application input for UC-05.
@@ -13,12 +14,13 @@ type FreezeEscrowInput struct {
 
 // FreezeEscrow freezes an escrow during dispute.
 type FreezeEscrow struct {
-	repo domainescrow.Repository
+	repo  domainescrow.Repository
+	audit *audituc.Emitter
 }
 
 // NewFreezeEscrow creates the FreezeEscrow use case.
-func NewFreezeEscrow(repo domainescrow.Repository) *FreezeEscrow {
-	return &FreezeEscrow{repo: repo}
+func NewFreezeEscrow(repo domainescrow.Repository, audit *audituc.Emitter) *FreezeEscrow {
+	return &FreezeEscrow{repo: repo, audit: audit}
 }
 
 // Execute transitions escrow to FROZEN.
@@ -39,5 +41,6 @@ func (uc *FreezeEscrow) Execute(ctx context.Context, input FreezeEscrowInput) (*
 	if err := uc.repo.Update(ctx, escrow); err != nil {
 		return nil, err
 	}
+	emitEscrowStatus(ctx, uc.audit, escrow)
 	return escrow, nil
 }

@@ -14,6 +14,7 @@ import (
 	pg "github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
 	escrowuc "github.com/mamahoos/airbar-finance/internal/usecase/escrow"
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 // VerifyOrderInput is input for confirming a payment order with Zibal.
@@ -31,6 +32,7 @@ type VerifyOrder struct {
 	zibal       ZibalGateway
 	fundEscrow  *escrowuc.FundEscrow
 	postJournal *ledgeruc.PostJournal
+	audit       *audituc.Emitter
 }
 
 // NewVerifyOrder creates the VerifyOrder use case.
@@ -41,6 +43,7 @@ func NewVerifyOrder(
 	zibalClient ZibalGateway,
 	fundEscrow *escrowuc.FundEscrow,
 	postJournal *ledgeruc.PostJournal,
+	audit *audituc.Emitter,
 ) *VerifyOrder {
 	return &VerifyOrder{
 		pool:        pool,
@@ -49,6 +52,7 @@ func NewVerifyOrder(
 		zibal:       zibalClient,
 		fundEscrow:  fundEscrow,
 		postJournal: postJournal,
+		audit:       audit,
 	}
 }
 
@@ -118,6 +122,7 @@ func (uc *VerifyOrder) Execute(ctx context.Context, input VerifyOrderInput) (*do
 		if err := uc.orders.Update(txCtx, current); err != nil {
 			return err
 		}
+		_ = uc.audit.EmitPaymentStatusChanged(txCtx, current.ID, string(current.Status))
 
 		payload, hash, err := HashPayload(map[string]any{
 			"trackId": current.Authority,
@@ -213,11 +218,12 @@ func (uc *VerifyWalletTopupOrder) Execute(ctx context.Context, orderID, authorit
 type FailPaymentOrder struct {
 	orders domainpayment.Repository
 	events domainprovider.Repository
+	audit  *audituc.Emitter
 }
 
 // NewFailPaymentOrder creates the FailPaymentOrder use case.
-func NewFailPaymentOrder(orders domainpayment.Repository, events domainprovider.Repository) *FailPaymentOrder {
-	return &FailPaymentOrder{orders: orders, events: events}
+func NewFailPaymentOrder(orders domainpayment.Repository, events domainprovider.Repository, audit *audituc.Emitter) *FailPaymentOrder {
+	return &FailPaymentOrder{orders: orders, events: events, audit: audit}
 }
 
 // Execute marks the order failed when Zibal callback reports failure.
@@ -238,6 +244,7 @@ func (uc *FailPaymentOrder) Execute(ctx context.Context, authority string, succe
 	if err := uc.orders.Update(ctx, order); err != nil {
 		return nil, err
 	}
+	_ = uc.audit.EmitPaymentStatusChanged(ctx, order.ID, string(order.Status))
 
 	payload, hash, err := HashPayload(map[string]any{
 		"trackId": authority,

@@ -9,6 +9,7 @@ import (
 	domainledger "github.com/mamahoos/airbar-finance/internal/domain/ledger"
 	pg "github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 // ReleaseEscrowInput is the application input for UC-06.
@@ -23,6 +24,7 @@ type ReleaseEscrow struct {
 	postJournal        *ledgeruc.PostJournal
 	ledger             LedgerBalanceReader
 	platformFeePercent float64
+	audit              *audituc.Emitter
 }
 
 // NewReleaseEscrow creates the ReleaseEscrow use case.
@@ -32,6 +34,7 @@ func NewReleaseEscrow(
 	postJournal *ledgeruc.PostJournal,
 	ledger LedgerBalanceReader,
 	platformFeePercent float64,
+	audit *audituc.Emitter,
 ) *ReleaseEscrow {
 	return &ReleaseEscrow{
 		pool:               pool,
@@ -39,6 +42,7 @@ func NewReleaseEscrow(
 		postJournal:        postJournal,
 		ledger:             ledger,
 		platformFeePercent: platformFeePercent,
+		audit:              audit,
 	}
 }
 
@@ -89,6 +93,7 @@ func (uc *ReleaseEscrow) Execute(ctx context.Context, input ReleaseEscrowInput) 
 		if err := uc.escrowRepo.Update(txCtx, escrow); err != nil {
 			return err
 		}
+		emitEscrowStatus(txCtx, uc.audit, escrow)
 		result = escrow
 		return nil
 	})

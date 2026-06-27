@@ -9,6 +9,7 @@ import (
 	domainledger "github.com/mamahoos/airbar-finance/internal/domain/ledger"
 	pg "github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 // PartialRefundEscrowInput is the application input for UC-08.
@@ -23,6 +24,7 @@ type PartialRefundEscrow struct {
 	escrowRepo  domainescrow.Repository
 	postJournal *ledgeruc.PostJournal
 	ledger      LedgerBalanceReader
+	audit       *audituc.Emitter
 }
 
 // NewPartialRefundEscrow creates the PartialRefundEscrow use case.
@@ -31,12 +33,14 @@ func NewPartialRefundEscrow(
 	escrowRepo domainescrow.Repository,
 	postJournal *ledgeruc.PostJournal,
 	ledger LedgerBalanceReader,
+	audit *audituc.Emitter,
 ) *PartialRefundEscrow {
 	return &PartialRefundEscrow{
 		pool:        pool,
 		escrowRepo:  escrowRepo,
 		postJournal: postJournal,
 		ledger:      ledger,
+		audit:       audit,
 	}
 }
 
@@ -91,6 +95,7 @@ func (uc *PartialRefundEscrow) Execute(ctx context.Context, input PartialRefundE
 		if err := uc.escrowRepo.Update(txCtx, escrow); err != nil {
 			return err
 		}
+		emitEscrowStatus(txCtx, uc.audit, escrow)
 		result = escrow
 		return nil
 	})

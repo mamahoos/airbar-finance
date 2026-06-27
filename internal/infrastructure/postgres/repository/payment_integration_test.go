@@ -46,15 +46,16 @@ func TestPaymentDirectFlowIntegration(t *testing.T) {
 	ensureWallet := walletuc.NewEnsureWalletAccount(walletRepo)
 	postJournal := ledgeruc.NewPostJournal(ledgerRepo, ensureWallet)
 
-	createEscrow := escrowuc.NewCreateEscrow(escrowRepo)
-	fundEscrow := escrowuc.NewFundEscrow(pool, escrowRepo, postJournal)
-	verifyOrder := paymentuc.NewVerifyOrder(pool, paymentRepo, providerRepo, zibalClient, fundEscrow, postJournal)
+	createEscrow := escrowuc.NewCreateEscrow(escrowRepo, nil)
+	fundEscrow := escrowuc.NewFundEscrow(pool, escrowRepo, postJournal, nil)
+	verifyOrder := paymentuc.NewVerifyOrder(pool, paymentRepo, providerRepo, zibalClient, fundEscrow, postJournal, nil)
 	createPaymentOrder := paymentuc.NewCreatePaymentOrder(
 		paymentRepo,
 		escrowRepo,
 		providerRepo,
 		zibalClient,
 		"http://localhost:8080",
+		nil,
 	)
 	verifyPaymentOrder := paymentuc.NewVerifyPaymentOrder(verifyOrder)
 	getEscrow := escrowuc.NewGetEscrow(escrowRepo)
@@ -120,6 +121,14 @@ func TestPaymentDirectFlowIntegration(t *testing.T) {
 	if balance != amount {
 		t.Fatalf("escrow balance = %d, want %d", balance, amount)
 	}
+
+	providerCount, err := providerRepo.CountByPaymentOrderID(ctx, order.ID)
+	if err != nil {
+		t.Fatalf("CountByPaymentOrderID() error = %v", err)
+	}
+	if providerCount < 2 {
+		t.Fatalf("provider events = %d, want at least REQUEST+VERIFY", providerCount)
+	}
 }
 
 func TestWalletTopupFlowIntegration(t *testing.T) {
@@ -147,9 +156,9 @@ func TestWalletTopupFlowIntegration(t *testing.T) {
 
 	ensureWallet := walletuc.NewEnsureWalletAccount(walletRepo)
 	postJournal := ledgeruc.NewPostJournal(ledgerRepo, ensureWallet)
-	fundEscrow := escrowuc.NewFundEscrow(pool, escrowRepo, postJournal)
-	verifyOrder := paymentuc.NewVerifyOrder(pool, paymentRepo, providerRepo, zibalClient, fundEscrow, postJournal)
-	createTopup := paymentuc.NewCreateWalletTopupOrder(paymentRepo, providerRepo, zibalClient, "http://localhost:8080")
+	fundEscrow := escrowuc.NewFundEscrow(pool, escrowRepo, postJournal, nil)
+	verifyOrder := paymentuc.NewVerifyOrder(pool, paymentRepo, providerRepo, zibalClient, fundEscrow, postJournal, nil)
+	createTopup := paymentuc.NewCreateWalletTopupOrder(paymentRepo, providerRepo, zibalClient, "http://localhost:8080", nil)
 	verifyTopup := paymentuc.NewVerifyWalletTopupOrder(verifyOrder)
 	getBalance := walletuc.NewGetBalance(ledgerRepo)
 

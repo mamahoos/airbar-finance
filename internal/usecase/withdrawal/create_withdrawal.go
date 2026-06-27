@@ -11,6 +11,7 @@ import (
 	pg "github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
 	walletuc "github.com/mamahoos/airbar-finance/internal/usecase/wallet"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 // CreateWithdrawalInput is the application input for UC-16.
@@ -28,6 +29,7 @@ type CreateWithdrawal struct {
 	withdrawals domainwithdrawal.Repository
 	postJournal *ledgeruc.PostJournal
 	getBalance  *walletuc.GetBalance
+	audit       *audituc.Emitter
 }
 
 // NewCreateWithdrawal creates the CreateWithdrawal use case.
@@ -36,12 +38,14 @@ func NewCreateWithdrawal(
 	withdrawals domainwithdrawal.Repository,
 	postJournal *ledgeruc.PostJournal,
 	getBalance *walletuc.GetBalance,
+	audit *audituc.Emitter,
 ) *CreateWithdrawal {
 	return &CreateWithdrawal{
 		pool:        pool,
 		withdrawals: withdrawals,
 		postJournal: postJournal,
 		getBalance:  getBalance,
+		audit:       audit,
 	}
 }
 
@@ -77,6 +81,7 @@ func (uc *CreateWithdrawal) Execute(ctx context.Context, input CreateWithdrawalI
 		if err := uc.withdrawals.Create(txCtx, withdrawal); err != nil {
 			return err
 		}
+		_ = uc.audit.EmitWithdrawalCreated(txCtx, withdrawal.ID, withdrawal.UserID, string(withdrawal.Status))
 
 		_, err := uc.postJournal.Execute(txCtx, ledgeruc.PostJournalInput{
 			RefType:     domainledger.RefTypeWithdrawalReserve,

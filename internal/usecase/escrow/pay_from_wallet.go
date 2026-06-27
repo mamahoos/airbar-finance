@@ -10,6 +10,7 @@ import (
 	pg "github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
 	walletuc "github.com/mamahoos/airbar-finance/internal/usecase/wallet"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 // PayFromWalletInput is the application input for UC-03.
@@ -25,6 +26,7 @@ type PayFromWallet struct {
 	escrowRepo  domainescrow.Repository
 	postJournal *ledgeruc.PostJournal
 	getBalance  *walletuc.GetBalance
+	audit       *audituc.Emitter
 }
 
 // NewPayFromWallet creates the PayFromWallet use case.
@@ -33,12 +35,14 @@ func NewPayFromWallet(
 	escrowRepo domainescrow.Repository,
 	postJournal *ledgeruc.PostJournal,
 	getBalance *walletuc.GetBalance,
+	audit *audituc.Emitter,
 ) *PayFromWallet {
 	return &PayFromWallet{
 		pool:        pool,
 		escrowRepo:  escrowRepo,
 		postJournal: postJournal,
 		getBalance:  getBalance,
+		audit:       audit,
 	}
 }
 
@@ -92,6 +96,7 @@ func (uc *PayFromWallet) Execute(ctx context.Context, input PayFromWalletInput) 
 		if err := uc.escrowRepo.Update(txCtx, escrow); err != nil {
 			return err
 		}
+		emitEscrowStatus(txCtx, uc.audit, escrow)
 		result = escrow
 		return nil
 	})

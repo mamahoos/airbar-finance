@@ -4,6 +4,7 @@ import (
 	"context"
 
 	domainescrow "github.com/mamahoos/airbar-finance/internal/domain/escrow"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 // MarkDeliveredInput is the application input for UC-04.
@@ -13,12 +14,13 @@ type MarkDeliveredInput struct {
 
 // MarkDelivered transitions a funded escrow into DISPUTE_WINDOW.
 type MarkDelivered struct {
-	repo domainescrow.Repository
+	repo  domainescrow.Repository
+	audit *audituc.Emitter
 }
 
 // NewMarkDelivered creates the MarkDelivered use case.
-func NewMarkDelivered(repo domainescrow.Repository) *MarkDelivered {
-	return &MarkDelivered{repo: repo}
+func NewMarkDelivered(repo domainescrow.Repository, audit *audituc.Emitter) *MarkDelivered {
+	return &MarkDelivered{repo: repo, audit: audit}
 }
 
 // Execute updates escrow status after carrier delivery.
@@ -39,5 +41,6 @@ func (uc *MarkDelivered) Execute(ctx context.Context, input MarkDeliveredInput) 
 	if err := uc.repo.Update(ctx, escrow); err != nil {
 		return nil, err
 	}
+	emitEscrowStatus(ctx, uc.audit, escrow)
 	return escrow, nil
 }
