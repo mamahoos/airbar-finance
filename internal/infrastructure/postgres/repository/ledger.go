@@ -6,10 +6,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	domainledger "github.com/mamahoos/airbar-finance/internal/domain/ledger"
+	pg "github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
 )
 
 // LedgerRepository implements domainledger.Repository using PostgreSQL.
@@ -24,16 +26,27 @@ func NewLedgerRepository(pool *pgxpool.Pool) *LedgerRepository {
 
 // CreateJournal inserts a journal and its entries in a single transaction.
 func (r *LedgerRepository) CreateJournal(ctx context.Context, journal *domainledger.Journal) error {
+	if tx, ok := pg.TxFromContext(ctx); ok {
+		return r.createJournal(ctx, tx, journal)
+	}
+
 	tx, err := r.pool.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
 
+	if err := r.createJournal(ctx, tx, journal); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+
+func (r *LedgerRepository) createJournal(ctx context.Context, tx pgx.Tx, journal *domainledger.Journal) error {
 	journalID := uuid.NewString()
 
 	var createdAt time.Time
-	err = tx.QueryRow(ctx, `
+	err := tx.QueryRow(ctx, `
 		INSERT INTO finance.ledger_journals (id, ref_type, ref_id, description)
 		VALUES ($1, $2, $3, $4)
 		RETURNING created_at
@@ -58,13 +71,6 @@ func (r *LedgerRepository) CreateJournal(ctx context.Context, journal *domainled
 
 		journal.Entries[i].ID = entryID
 		journal.Entries[i].JournalID = journalID
-	}
-
-	if err := tx.Commit(ctx); err != nil {
-		if isUniqueViolation(err) {
-			return domainledger.ErrDuplicateJournal
-		}
-		return err
 	}
 
 	journal.ID = journalID

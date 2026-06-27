@@ -6,12 +6,12 @@ import "time"
 type RefType string
 
 const (
-	RefTypePSPFundEscrow          RefType = "PSP_FUND_ESCROW"
-	RefTypeWalletToEscrow         RefType = "WALLET_TO_ESCROW"
-	RefTypeEscrowRelease          RefType = "ESCROW_RELEASE"
-	RefTypeEscrowRefundWallet     RefType = "ESCROW_REFUND_WALLET"
-	RefTypeWalletTopup            RefType = "WALLET_TOPUP"
-	RefTypeWithdrawalReserve      RefType = "WITHDRAWAL_RESERVE"
+	RefTypePSPFundEscrow            RefType = "PSP_FUND_ESCROW"
+	RefTypeWalletToEscrow           RefType = "WALLET_TO_ESCROW"
+	RefTypeEscrowRelease            RefType = "ESCROW_RELEASE"
+	RefTypeEscrowRefundWallet       RefType = "ESCROW_REFUND_WALLET"
+	RefTypeWalletTopup              RefType = "WALLET_TOPUP"
+	RefTypeWithdrawalReserve        RefType = "WITHDRAWAL_RESERVE"
 	RefTypeWithdrawalRejectReversal RefType = "WITHDRAWAL_REJECT_REVERSAL"
 )
 

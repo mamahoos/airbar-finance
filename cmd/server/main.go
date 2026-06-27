@@ -12,11 +12,16 @@ import (
 	"time"
 
 	deliverygrpc "github.com/mamahoos/airbar-finance/internal/delivery/grpc"
+	"github.com/mamahoos/airbar-finance/internal/delivery/grpc/handlers"
 	deliveryhttp "github.com/mamahoos/airbar-finance/internal/delivery/http"
 	"github.com/mamahoos/airbar-finance/internal/infrastructure/config"
 	"github.com/mamahoos/airbar-finance/internal/infrastructure/health"
 	"github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
+	"github.com/mamahoos/airbar-finance/internal/infrastructure/postgres/repository"
 	redisinfra "github.com/mamahoos/airbar-finance/internal/infrastructure/redis"
+	escrowuc "github.com/mamahoos/airbar-finance/internal/usecase/escrow"
+	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
+	walletuc "github.com/mamahoos/airbar-finance/internal/usecase/wallet"
 )
 
 func main() {
@@ -52,7 +57,37 @@ func run(logger *slog.Logger) error {
 
 	checker := health.NewChecker(dbPool, redisClient)
 
-	grpcServer, err := deliverygrpc.NewServer(cfg.GRPCPort, checker)
+	ledgerRepo := repository.NewLedgerRepository(dbPool)
+	walletRepo := repository.NewWalletRepository(dbPool)
+	escrowRepo := repository.NewEscrowRepository(dbPool)
+
+	ensureWallet := walletuc.NewEnsureWalletAccount(walletRepo)
+	postJournal := ledgeruc.NewPostJournal(ledgerRepo, ensureWallet)
+	getBalance := walletuc.NewGetBalance(ledgerRepo)
+
+	createEscrow := escrowuc.NewCreateEscrow(escrowRepo)
+	getEscrow := escrowuc.NewGetEscrow(escrowRepo)
+	fundEscrow := escrowuc.NewFundEscrow(dbPool, escrowRepo, postJournal)
+	payFromWallet := escrowuc.NewPayFromWallet(dbPool, escrowRepo, postJournal, getBalance)
+	markDelivered := escrowuc.NewMarkDelivered(escrowRepo)
+	freezeEscrow := escrowuc.NewFreezeEscrow(escrowRepo)
+	releaseEscrow := escrowuc.NewReleaseEscrow(dbPool, escrowRepo, postJournal, ledgerRepo, cfg.PlatformFeePercent)
+	refundEscrow := escrowuc.NewRefundEscrow(dbPool, escrowRepo, postJournal, ledgerRepo)
+	partialRefundEscrow := escrowuc.NewPartialRefundEscrow(dbPool, escrowRepo, postJournal, ledgerRepo)
+
+	escrowHandler := handlers.NewEscrowHandler(
+		createEscrow,
+		getEscrow,
+		fundEscrow,
+		payFromWallet,
+		markDelivered,
+		freezeEscrow,
+		releaseEscrow,
+		refundEscrow,
+		partialRefundEscrow,
+	)
+
+	grpcServer, err := deliverygrpc.NewServer(cfg.GRPCPort, checker, escrowHandler)
 	if err != nil {
 		return err
 	}

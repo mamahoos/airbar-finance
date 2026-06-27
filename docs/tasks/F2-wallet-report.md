@@ -66,4 +66,6 @@ go build ./cmd/server                                 — OK
 
 ## Next phase
 
-**F3 — Escrow:** migration `escrows`, state machine, UC-01..08.
+**F3 — Escrow:** migration `escrows`, state machine, UC-01..08, gRPC EscrowService.
+
+**F4 — Payment + Zibal:** `payment_orders`, Zibal adapter, UC-09..13.
