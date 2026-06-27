@@ -13,8 +13,6 @@ concurrency:
 env:
   GO_VERSION: "1.22"
   GOFLAGS: "-buildvcs=false"
-  # Ephemeral Postgres in CI only — not a production credential.
-  CI_DB_PASSWORD: ci_ephemeral_db_password
 
 jobs:
   changes:
@@ -120,15 +118,16 @@ jobs:
     if: needs.changes.outputs.go == 'true' || needs.changes.outputs.ci == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Literal credentials: ephemeral CI Postgres only (services.*.env cannot use ${{ env.* }}).
     env:
-      TEST_DATABASE_URL: postgres://ci_user:${{ env.CI_DB_PASSWORD }}@localhost:5432/airbar_finance_test?sslmode=disable
+      TEST_DATABASE_URL: postgres://ci_user:ci_ephemeral_db_password@localhost:5432/airbar_finance_test?sslmode=disable
     services:
       postgres:
         image: postgres:16-alpine
         env:
           POSTGRES_DB: airbar_finance_test
           POSTGRES_USER: ci_user
-          POSTGRES_PASSWORD: ${{ env.CI_DB_PASSWORD }}
+          POSTGRES_PASSWORD: ci_ephemeral_db_password
         ports:
           - 5432:5432
         options: >-
