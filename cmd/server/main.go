@@ -24,6 +24,7 @@ import (
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
 	paymentuc "github.com/mamahoos/airbar-finance/internal/usecase/payment"
 	walletuc "github.com/mamahoos/airbar-finance/internal/usecase/wallet"
+	withdrawaluc "github.com/mamahoos/airbar-finance/internal/usecase/withdrawal"
 )
 
 func main() {
@@ -64,6 +65,8 @@ func run(logger *slog.Logger) error {
 	escrowRepo := repository.NewEscrowRepository(dbPool)
 	paymentRepo := repository.NewPaymentRepository(dbPool)
 	providerEventRepo := repository.NewProviderEventRepository(dbPool)
+
+	withdrawalRepo := repository.NewWithdrawalRepository(dbPool)
 
 	zibalClient := zibal.NewClient(cfg)
 
@@ -114,7 +117,19 @@ func run(logger *slog.Logger) error {
 
 	walletHandler := handlers.NewWalletHandler(getWallet, listWalletTransactions)
 
-	grpcServer, err := deliverygrpc.NewServer(cfg.GRPCPort, checker, escrowHandler, paymentHandler, walletHandler)
+	createWithdrawal := withdrawaluc.NewCreateWithdrawal(dbPool, withdrawalRepo, postJournal, getBalance)
+	listWithdrawals := withdrawaluc.NewListWithdrawals(withdrawalRepo)
+	processWithdrawal := withdrawaluc.NewProcessWithdrawal(withdrawalRepo)
+	rejectWithdrawal := withdrawaluc.NewRejectWithdrawal(dbPool, withdrawalRepo, postJournal)
+
+	withdrawalHandler := handlers.NewWithdrawalHandler(
+		createWithdrawal,
+		listWithdrawals,
+		processWithdrawal,
+		rejectWithdrawal,
+	)
+
+	grpcServer, err := deliverygrpc.NewServer(cfg.GRPCPort, checker, escrowHandler, paymentHandler, walletHandler, withdrawalHandler)
 	if err != nil {
 		return err
 	}

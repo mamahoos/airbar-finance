@@ -23,6 +23,7 @@ func NewServer(
 	escrowHandler *handlers.EscrowHandler,
 	paymentHandler *handlers.PaymentHandler,
 	walletHandler *handlers.WalletHandler,
+	withdrawalHandler *handlers.WithdrawalHandler,
 ) (*Server, error) {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
@@ -39,6 +40,9 @@ func NewServer(
 	}
 	if walletHandler != nil {
 		financev1.RegisterWalletServiceServer(grpcServer, walletHandler)
+	}
+	if withdrawalHandler != nil {
+		financev1.RegisterWithdrawalServiceServer(grpcServer, withdrawalHandler)
 	}
 
 	return &Server{

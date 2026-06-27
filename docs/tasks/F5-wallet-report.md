@@ -44,4 +44,4 @@ go build ./cmd/server                                 — OK
 
 ## Next phase
 
-**F6 — Withdrawal:** migration `withdrawals`, UC-16..19, gRPC WithdrawalService.
+**F7 — Treasury + Reconciliation:** UC-20..23.

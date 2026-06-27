@@ -61,6 +61,7 @@ Production deployments must inject env via the orchestrator — not via `.env` o
 | `00004_escrows.sql` | F3 | `escrows` lifecycle metadata |
 | `00005_payment_orders.sql` | F4 | `payment_orders` |
 | `00006_provider_events.sql` | F4 | `provider_events` audit |
+| `00007_withdrawals.sql` | F6 | `withdrawals` (destination_hash only) |
 
 ```bash
 make migrate-up

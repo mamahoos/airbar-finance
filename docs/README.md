@@ -12,6 +12,7 @@ Engineering docs for the Go finance service (Scenario B).
 | F3 Escrow | Done | [tasks/F3-escrow-report.md](./tasks/F3-escrow-report.md) |
 | F4 Payment + Zibal | Done | [tasks/F4-zibal-report.md](./tasks/F4-zibal-report.md) |
 | F5 Wallet queries | Done | [tasks/F5-wallet-report.md](./tasks/F5-wallet-report.md) |
+| F6 Withdrawal | Done | [tasks/F6-withdrawal-report.md](./tasks/F6-withdrawal-report.md) |
 
 Parent monorepo roadmap: [`../../docs/09-roadmap-هسته-مالی.md`](../../docs/09-roadmap-هسته-مالی.md) (if checked out alongside `airbar.app-staging`).
 
