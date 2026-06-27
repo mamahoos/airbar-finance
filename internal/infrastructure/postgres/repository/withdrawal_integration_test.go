@@ -63,6 +63,11 @@ func TestWithdrawalReserveProcessRejectIntegration(t *testing.T) {
 	fundWallet(processUser, processUser+":topup", amount)
 	fundWallet(rejectUser, rejectUser+":topup", amount)
 
+	payoutBeforeDebit, payoutBeforeCredit, err := ledgerRepo.SumByAccount(ctx, domainledger.AccountIRPayoutClearing)
+	if err != nil {
+		t.Fatalf("payout SumByAccount() before reserve error = %v", err)
+	}
+
 	withdrawal, err := createWithdrawal.Execute(ctx, withdrawaluc.CreateWithdrawalInput{
 		UserID:               processUser,
 		Amount:               amount,
@@ -92,8 +97,9 @@ func TestWithdrawalReserveProcessRejectIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("payout SumByAccount() error = %v", err)
 	}
-	if payoutCredit-payoutDebit != amount {
-		t.Fatalf("payout clearing = %d, want %d", payoutCredit-payoutDebit, amount)
+	payoutDelta := (payoutCredit - payoutDebit) - (payoutBeforeCredit - payoutBeforeDebit)
+	if payoutDelta != amount {
+		t.Fatalf("payout clearing delta = %d, want %d", payoutDelta, amount)
 	}
 
 	withdrawal, err = processWithdrawal.Execute(ctx, withdrawaluc.ProcessWithdrawalInput{
