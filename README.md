@@ -2,7 +2,7 @@
 
 Go finance service for Airbar (Scenario B): ledger, escrow, Zibal PSP, wallet, withdrawal.
 
-**Status:** F0–F3 done — bootstrap, ledger SSOT, wallet accounts, escrow lifecycle + gRPC.
+**Status:** F0–F4 done — bootstrap, ledger, wallet, escrow, Zibal payment + topup.
 
 Full docs: [docs/README.md](docs/README.md) · [docs/development.md](docs/development.md)
 

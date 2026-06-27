@@ -17,7 +17,7 @@ type Server struct {
 }
 
 // NewServer registers finance gRPC services and binds to port.
-func NewServer(port int, checker *health.Checker, escrowHandler *handlers.EscrowHandler) (*Server, error) {
+func NewServer(port int, checker *health.Checker, escrowHandler *handlers.EscrowHandler, paymentHandler *handlers.PaymentHandler) (*Server, error) {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return nil, err
@@ -27,6 +27,9 @@ func NewServer(port int, checker *health.Checker, escrowHandler *handlers.Escrow
 	financev1.RegisterFinanceHealthServiceServer(grpcServer, handlers.NewHealthHandler(checker))
 	if escrowHandler != nil {
 		financev1.RegisterEscrowServiceServer(grpcServer, escrowHandler)
+	}
+	if paymentHandler != nil {
+		financev1.RegisterPaymentOrderServiceServer(grpcServer, paymentHandler)
 	}
 
 	return &Server{

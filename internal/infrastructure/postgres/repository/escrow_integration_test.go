@@ -108,6 +108,11 @@ func TestEscrowWalletFlowIntegration(t *testing.T) {
 		t.Fatalf("status after delivery = %q, want DISPUTE_WINDOW", escrow.Status)
 	}
 
+	feeDebitBefore, feeCreditBefore, err := ledgerRepo.SumByAccount(ctx, domainledger.AccountAirbarFeeRevenue)
+	if err != nil {
+		t.Fatalf("fee SumByAccount() before release error = %v", err)
+	}
+
 	escrow, err = releaseEscrow.Execute(ctx, escrowuc.ReleaseEscrowInput{ShipmentID: shipmentID})
 	if err != nil {
 		t.Fatalf("ReleaseEscrow() error = %v", err)
@@ -128,8 +133,9 @@ func TestEscrowWalletFlowIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("fee SumByAccount() error = %v", err)
 	}
-	if feeCredit-feeDebit != 1000 {
-		t.Fatalf("fee revenue = %d, want 1000", feeCredit-feeDebit)
+	feeDelta := (feeCredit - feeDebit) - (feeCreditBefore - feeDebitBefore)
+	if feeDelta != 1000 {
+		t.Fatalf("fee revenue delta = %d, want 1000", feeDelta)
 	}
 
 	// Gate F3 dispute path: freeze blocks release; refund credits payer wallet.

@@ -5,6 +5,7 @@ import (
 
 	domainescrow "github.com/mamahoos/airbar-finance/internal/domain/escrow"
 	domainledger "github.com/mamahoos/airbar-finance/internal/domain/ledger"
+	domainpayment "github.com/mamahoos/airbar-finance/internal/domain/payment"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -30,6 +31,25 @@ func mapEscrowError(err error) error {
 		errors.Is(err, domainledger.ErrEmptyJournal),
 		errors.Is(err, domainledger.ErrInvalidEntry):
 		return status.Error(codes.InvalidArgument, err.Error())
+	default:
+		return status.Error(codes.Internal, "internal error")
+	}
+}
+
+func mapPaymentError(err error) error {
+	switch {
+	case errors.Is(err, domainpayment.ErrNotFound):
+		return status.Error(codes.NotFound, err.Error())
+	case errors.Is(err, domainpayment.ErrInvalidInput),
+		errors.Is(err, domainpayment.ErrAmountMismatch),
+		errors.Is(err, domainpayment.ErrInvalidPurpose):
+		return status.Error(codes.InvalidArgument, err.Error())
+	case errors.Is(err, domainpayment.ErrEscrowNotReady),
+		errors.Is(err, domainescrow.ErrPayerMismatch),
+		errors.Is(err, domainpayment.ErrProviderVerifyFailed):
+		return status.Error(codes.FailedPrecondition, err.Error())
+	case errors.Is(err, domainledger.ErrDuplicateJournal):
+		return status.Error(codes.AlreadyExists, err.Error())
 	default:
 		return status.Error(codes.Internal, "internal error")
 	}

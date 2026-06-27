@@ -59,6 +59,8 @@ Production deployments must inject env via the orchestrator — not via `.env` o
 | `00002_ledger.sql` | F1 | `ledger_journals`, `ledger_entries` |
 | `00003_wallet_accounts.sql` | F2 | `wallet_accounts` (no balance column) |
 | `00004_escrows.sql` | F3 | `escrows` lifecycle metadata |
+| `00005_payment_orders.sql` | F4 | `payment_orders` |
+| `00006_provider_events.sql` | F4 | `provider_events` audit |
 
 ```bash
 make migrate-up

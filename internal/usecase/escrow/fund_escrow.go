@@ -35,35 +35,14 @@ func (uc *FundEscrow) Execute(ctx context.Context, input FundEscrowInput) (*doma
 		return nil, domainescrow.ErrInvalidAmount
 	}
 
+	if _, ok := pg.TxFromContext(ctx); ok {
+		return uc.execute(ctx, input)
+	}
+
 	var result *domainescrow.Escrow
 	err := pg.WithTx(ctx, uc.pool, func(txCtx context.Context) error {
-		escrow, err := uc.escrowRepo.GetByShipmentID(txCtx, input.ShipmentID)
+		escrow, err := uc.execute(txCtx, input)
 		if err != nil {
-			return err
-		}
-		if !escrow.Status.CanFund() {
-			return domainescrow.ErrInvalidTransition
-		}
-
-		_, err = uc.postJournal.Execute(txCtx, ledgeruc.PostJournalInput{
-			RefType:     domainledger.RefTypePSPFundEscrow,
-			RefID:       fmt.Sprintf("%s:psp-fund:%s", input.ShipmentID, input.PaymentOrderID),
-			Description: "PSP fund escrow",
-			Lines: []domainledger.EntryLine{
-				{AccountCode: domainledger.AccountIRPSPClearing, Debit: escrow.Amount, Credit: 0},
-				{AccountCode: domainledger.ShipmentEscrowAccount(input.ShipmentID), Debit: 0, Credit: escrow.Amount},
-			},
-		})
-		if err != nil {
-			return err
-		}
-
-		now := nowUTC()
-		escrow.Status = domainescrow.StatusFunded
-		escrow.PaymentOrderID = input.PaymentOrderID
-		escrow.FundingSource = domainescrow.FundingSourcePSP
-		escrow.FundedAt = &now
-		if err := uc.escrowRepo.Update(txCtx, escrow); err != nil {
 			return err
 		}
 		result = escrow
@@ -73,4 +52,37 @@ func (uc *FundEscrow) Execute(ctx context.Context, input FundEscrowInput) (*doma
 		return nil, err
 	}
 	return result, nil
+}
+
+func (uc *FundEscrow) execute(ctx context.Context, input FundEscrowInput) (*domainescrow.Escrow, error) {
+	escrow, err := uc.escrowRepo.GetByShipmentID(ctx, input.ShipmentID)
+	if err != nil {
+		return nil, err
+	}
+	if !escrow.Status.CanFund() {
+		return nil, domainescrow.ErrInvalidTransition
+	}
+
+	_, err = uc.postJournal.Execute(ctx, ledgeruc.PostJournalInput{
+		RefType:     domainledger.RefTypePSPFundEscrow,
+		RefID:       fmt.Sprintf("%s:psp-fund:%s", input.ShipmentID, input.PaymentOrderID),
+		Description: "PSP fund escrow",
+		Lines: []domainledger.EntryLine{
+			{AccountCode: domainledger.AccountIRPSPClearing, Debit: escrow.Amount, Credit: 0},
+			{AccountCode: domainledger.ShipmentEscrowAccount(input.ShipmentID), Debit: 0, Credit: escrow.Amount},
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	now := nowUTC()
+	escrow.Status = domainescrow.StatusFunded
+	escrow.PaymentOrderID = input.PaymentOrderID
+	escrow.FundingSource = domainescrow.FundingSourcePSP
+	escrow.FundedAt = &now
+	if err := uc.escrowRepo.Update(ctx, escrow); err != nil {
+		return nil, err
+	}
+	return escrow, nil
 }
