@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package airbar.finance.v1;
 
-option go_package = "github.com/airbar/finance/v1;financev1";
+option go_package = "github.com/mamahoos/airbar-finance/internal/gen/financev1;financev1";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";

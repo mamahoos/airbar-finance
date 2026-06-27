@@ -2,7 +2,9 @@
 
 Go finance service for Airbar (Scenario B): ledger, escrow, Zibal PSP, wallet, withdrawal.
 
-**Status:** F0 skeleton — Clean Architecture layout, local stack, migrations baseline.
+**Status:** F0 bootstrap + F1 ledger core — health checks, env-driven config, `PostJournal`, Docker/CI green.
+
+Full docs: [docs/README.md](docs/README.md) · [docs/development.md](docs/development.md)
 
 ## Layout (Clean Architecture)
 
@@ -56,46 +58,11 @@ delivery → usecase → domain ← infrastructure
 
 - Go 1.22+
 - Docker + Docker Compose
-- [goose](https://github.com/pressly/goose) for migrations (`go install github.com/pressly/goose/v3/cmd/goose@latest`)
 
-## Local stack
-
-```bash
-cp .env.example .env
-make up
-make migrate-up
-```
-
-| Service           | Port  | Notes                    |
-|-------------------|-------|--------------------------|
-| postgres-finance  | 5434  | DB `airbar_finance`      |
-| redis             | 6379  | idempotency cache (F8+)  |
-| gRPC (planned)    | 50051 | after F0 bootstrap       |
-| HTTP (planned)    | 8080  | health + Zibal callback  |
-
-## Migrations
-
-Migrations live in `internal/infrastructure/postgres/migrations/`.
-
-| Migration        | Phase | Purpose              |
-|------------------|-------|----------------------|
-| `00001_baseline` | F0    | `finance` schema     |
-| ledger tables    | F1    | journals + entries   |
-| wallet_accounts  | F2    | lazy wallet create   |
-| escrows          | F3    | escrow state machine |
-| payment_orders   | F4    | Zibal integration    |
-
-System account codes are constants in code (F1.3), not DB seed rows.
-
-## Next steps (F0)
-
-1. `infrastructure/config` — env loader
-2. Postgres + Redis clients in infrastructure
-3. gRPC `CheckReady` + HTTP `/health/ready` in delivery
-4. `cmd/server/main.go` — wire dependencies
-5. Enable CI: `go vet`, `go test`, `go build`
+**Setup, env, Docker, migrations, tests:** [docs/development.md](docs/development.md)  
+**Phase reports:** [docs/README.md](docs/README.md)
 
 ## CI
 
-- `ci.yml` — `go mod verify` (build/test when code lands)
+- `ci.yml` — `go mod verify`, `go vet`, `go test`, `go build`
 - `notify-events.yml` — Telegram repo notifications
