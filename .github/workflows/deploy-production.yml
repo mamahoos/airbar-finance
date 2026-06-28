@@ -1,0 +1,42 @@
+name: Deploy — Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image-tag:
+        description: "Image tag to deploy (e.g. v1.2.3 or sha-abc1234)"
+        required: true
+        type: string
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy to production
+    uses: ./.github/workflows/_deploy.yml
+    with:
+      environment: production
+      image-tag: ghcr.io/${{ github.repository }}:${{ inputs.image-tag }}
+    secrets:
+      SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+      SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+      SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+      SSH_PORT: ${{ secrets.PRODUCTION_SSH_PORT }}
+
+  notify:
+    name: notify result
+    needs: deploy
+    if: always()
+    uses: ./.github/workflows/_notify-deploy.yml
+    with:
+      environment: production
+      image-tag: ghcr.io/${{ github.repository }}:${{ inputs.image-tag }}
+      status: ${{ needs.deploy.result == 'success' && 'success' || 'failure' }}
+      duration: ${{ needs.deploy.outputs.deploy-duration }}
+      actor: ${{ github.actor }}
+      run-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    secrets:
+      TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
