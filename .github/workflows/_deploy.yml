@@ -1,0 +1,111 @@
+name: "[reusable] Deploy"
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Target environment (staging | production)"
+        type: string
+        required: true
+      image-tag:
+        description: "Full image tag to deploy, e.g. ghcr.io/org/repo:sha-abc1234"
+        type: string
+        required: true
+      grpc-port:
+        description: "gRPC port to run health check against"
+        type: string
+        default: "50051"
+      health-retries:
+        description: "Number of health check attempts before failing"
+        type: number
+        default: 10
+      health-interval:
+        description: "Seconds between health check attempts"
+        type: number
+        default: 6
+    secrets:
+      SSH_HOST:
+        required: true
+      SSH_USER:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
+      SSH_PORT:
+        required: false
+    outputs:
+      deploy-duration:
+        description: "Deployment duration in seconds"
+        value: ${{ jobs.deploy.outputs.duration }}
+
+jobs:
+  deploy:
+    name: deploy to ${{ inputs.environment }}
+    runs-on: self-hosted
+    timeout-minutes: 15
+    environment: ${{ inputs.environment }}
+    outputs:
+      duration: ${{ steps.timer.outputs.duration }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Record start time
+        id: start
+        run: echo "ts=$(date +%s)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${{ secrets.SSH_PORT || '22' }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Pull image on server
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p "${{ secrets.SSH_PORT || '22' }}" \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "docker pull ${{ inputs.image-tag }}"
+
+      - name: Deploy with Docker Compose
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p "${{ secrets.SSH_PORT || '22' }}" \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "cd ~/airbar-finance && \
+             IMAGE_TAG=${{ inputs.image-tag }} \
+             docker compose up -d --remove-orphans"
+
+      - name: Wait for service to be ready
+        run: |
+          echo "Running health check (up to ${{ inputs.health-retries }} attempts)..."
+          for i in $(seq 1 ${{ inputs.health-retries }}); do
+            echo "Attempt $i/${{ inputs.health-retries }}..."
+            result=$(ssh -i ~/.ssh/deploy_key \
+              -p "${{ secrets.SSH_PORT || '22' }}" \
+              "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+              "GRPC_ADDR=localhost:${{ inputs.grpc-port }} \
+               go run ./scripts/check_ready 2>&1" || true)
+
+            if echo "$result" | grep -q "ready=true"; then
+              echo "✅ Service is ready."
+              exit 0
+            fi
+
+            echo "Not ready yet: $result"
+            sleep ${{ inputs.health-interval }}
+          done
+          echo "❌ Service did not become ready in time."
+          exit 1
+
+      - name: Calculate deploy duration
+        id: timer
+        if: always()
+        run: |
+          duration=$(( $(date +%s) - ${{ steps.start.outputs.ts }} ))
+          echo "duration=$duration" >> "$GITHUB_OUTPUT"
+          echo "Deploy took ${duration}s"
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
