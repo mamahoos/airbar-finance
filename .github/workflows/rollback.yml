@@ -1,0 +1,49 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to roll back"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      image-tag:
+        description: "Image tag to roll back to (e.g. v1.2.2 or sha-abc1234)"
+        required: true
+        type: string
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    name: rollback ${{ inputs.environment }}
+    uses: ./.github/workflows/_deploy.yml
+    with:
+      environment: ${{ inputs.environment }}
+      image-tag: ghcr.io/${{ github.repository }}:${{ inputs.image-tag }}
+    secrets:
+      SSH_HOST: ${{ inputs.environment == 'production' && secrets.PRODUCTION_SSH_HOST || secrets.STAGING_SSH_HOST }}
+      SSH_USER: ${{ inputs.environment == 'production' && secrets.PRODUCTION_SSH_USER || secrets.STAGING_SSH_USER }}
+      SSH_PRIVATE_KEY: ${{ inputs.environment == 'production' && secrets.PRODUCTION_SSH_PRIVATE_KEY || secrets.STAGING_SSH_PRIVATE_KEY }}
+      SSH_PORT: ${{ inputs.environment == 'production' && secrets.PRODUCTION_SSH_PORT || secrets.STAGING_SSH_PORT }}
+
+  notify:
+    name: notify rollback
+    needs: rollback
+    if: always()
+    uses: ./.github/workflows/_notify-deploy.yml
+    with:
+      environment: ${{ inputs.environment }}
+      image-tag: ghcr.io/${{ github.repository }}:${{ inputs.image-tag }}
+      status: rollback
+      duration: ${{ needs.rollback.outputs.deploy-duration }}
+      actor: ${{ github.actor }}
+      run-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    secrets:
+      TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
