@@ -24,19 +24,3 @@ jobs:
       SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
       SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
       SSH_PORT: ${{ secrets.PRODUCTION_SSH_PORT }}
-
-  notify:
-    name: notify result
-    needs: deploy
-    if: always()
-    uses: ./.github/workflows/_notify-deploy.yml
-    with:
-      environment: production
-      image-tag: ghcr.io/${{ github.repository }}:${{ inputs.image-tag }}
-      status: ${{ needs.deploy.result == 'success' && 'success' || 'failure' }}
-      duration: ${{ needs.deploy.outputs.deploy-duration }}
-      actor: ${{ github.actor }}
-      run-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-    secrets:
-      TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
-      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}

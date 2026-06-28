@@ -50,19 +50,3 @@ jobs:
       SSH_USER: ${{ secrets.STAGING_SSH_USER }}
       SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
       SSH_PORT: ${{ secrets.STAGING_SSH_PORT }}
-
-  notify:
-    name: notify result
-    needs: [build-push, deploy]
-    if: always() && needs.build-push.result != 'skipped'
-    uses: ./.github/workflows/_notify-deploy.yml
-    with:
-      environment: staging
-      image-tag: ghcr.io/${{ github.repository }}:sha-${{ github.event.workflow_run.head_sha }}
-      status: ${{ needs.deploy.result == 'success' && 'success' || 'failure' }}
-      duration: ${{ needs.deploy.outputs.deploy-duration }}
-      actor: ${{ github.event.workflow_run.actor.login }}
-      run-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-    secrets:
-      TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
-      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
