@@ -45,7 +45,7 @@ jobs:
           disable_web_page_preview: true
           message: |
             **${{ github.event.action == 'opened' && '🆕' || github.event.action == 'closed' && '✅' || '🔄' }} Issue #${{ github.event.issue.number }} ${{ github.event.action }}**
-            Title: ${{ github.event.issue.title }}
+            Title: `${{ github.event.issue.title }}`
             By: `${{ github.actor }}`
             Repo: `${{ github.repository }}`
             ${{ github.event.issue.html_url }}
@@ -60,7 +60,7 @@ jobs:
           disable_web_page_preview: true
           message: |
             **${{ github.event.action == 'opened' && '🆕' || github.event.action == 'closed' && (github.event.pull_request.merged && '🔀' || '❌') || '🔄' }} PR #${{ github.event.pull_request.number }} ${{ github.event.action }}**
-            Title: ${{ github.event.pull_request.title }}
+            Title: `${{ github.event.pull_request.title }}`
             By: `${{ github.actor }}`
             Repo: `${{ github.repository }}`
             ${{ github.event.pull_request.html_url }}
