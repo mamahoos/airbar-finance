@@ -47,7 +47,7 @@ jobs:
       duration: ${{ steps.timer.outputs.duration }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Record start time
         id: start
