@@ -32,6 +32,8 @@ jobs:
       contents: read
       packages: write
       security-events: write
+      actions: read
+      checks: read 
     outputs:
       digest: ${{ steps.build.outputs.digest }}
       metadata: ${{ steps.build.outputs.metadata }}
