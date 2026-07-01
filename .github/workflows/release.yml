@@ -24,6 +24,8 @@ jobs:
         ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
       push: true
     permissions:
+      actions: read
+      checks: read
       contents: read
       packages: write
       security-events: write
