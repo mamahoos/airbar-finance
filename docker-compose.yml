@@ -1,3 +1,13 @@
+# Base stack — shared service definitions for all environments.
+# Use with an overlay:
+#   dev:     docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#   staging: COMPOSE_PROJECT_NAME=airbar-finance-staging IMAGE_TAG=ghcr.io/... \
+#            docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
+#   prod:    COMPOSE_PROJECT_NAME=airbar-finance-prod IMAGE_TAG=ghcr.io/... \
+#            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+name: ${COMPOSE_PROJECT_NAME:-airbar-finance}
+
 services:
   postgres-finance:
     image: postgres:16-alpine
@@ -5,40 +15,49 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-airbar}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-airbar}
       POSTGRES_DB: ${POSTGRES_DB:-airbar_finance}
-    ports:
-      - "${POSTGRES_PORT:-5434}:5432"
     volumes:
       - postgres_finance_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-airbar} -d ${POSTGRES_DB:-airbar_finance}"]
-      interval: 5s
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-airbar} -d ${POSTGRES_DB:-airbar_finance}',
+        ]
+      interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - internal
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "${REDIS_PORT:-6381}:6379"
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
       retries: 5
+    networks:
+      - internal
 
   airbar-finance:
-    build: .
-    ports:
-      - "${APP_PORT:-8080}:8080"
-      - "${GRPC_PORT:-50051}:50051"
-    env_file: .env
-    environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:-airbar}:${POSTGRES_PASSWORD:-airbar}@postgres-finance:5432/${POSTGRES_DB:-airbar_finance}?sslmode=disable
-      REDIS_URL: redis://redis:${REDIS_INTERNAL_PORT:-6379}/${REDIS_DB:-1}
     depends_on:
       postgres-finance:
         condition: service_healthy
       redis:
         condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-airbar}:${POSTGRES_PASSWORD}@postgres-finance:5432/${POSTGRES_DB:-airbar_finance}?sslmode=disable
+      REDIS_URL: redis://redis:6379/${REDIS_DB:-1}
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
 
 volumes:
   postgres_finance_data:
+  redis_data:

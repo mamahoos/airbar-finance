@@ -1,0 +1,40 @@
+# Production deploy — pre-built image from GHCR, no host port exposure.
+# Requires on the server:
+#   - .env.production (copy from .env.production.example; never commit secrets)
+#   - IMAGE_TAG set by CI (e.g. ghcr.io/mamahoos/airbar-finance:v1.2.3)
+#   - Reverse proxy (nginx/traefik) on the shared Docker network for public HTTP/gRPC
+#
+# Run migrations before deploy:
+#   goose -dir internal/infrastructure/postgres/migrations postgres "$DATABASE_URL" up
+
+services:
+  postgres-finance:
+    container_name: airbar-finance-postgres-prod
+    env_file: .env.production
+    restart: always
+
+  redis:
+    container_name: airbar-finance-redis-prod
+    env_file: .env.production
+    restart: always
+
+  airbar-finance:
+    image: ${IMAGE_TAG:?IMAGE_TAG is required for production deploy}
+    container_name: airbar-finance-app-prod
+    env_file: .env.production
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: '50m'
+        max-file: '5'
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+
+networks:
+  internal:
+    name: airbar-prod
+    external: true

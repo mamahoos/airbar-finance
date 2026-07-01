@@ -67,12 +67,29 @@ jobs:
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
             "docker pull ${{ inputs.image-tag }}"
 
+      - name: Sync compose files to server
+        run: |
+          scp -i ~/.ssh/deploy_key \
+            -P "${{ secrets.SSH_PORT || '22' }}" \
+            docker-compose.yml \
+            docker-compose.dev.yml \
+            docker-compose.staging.yml \
+            docker-compose.prod.yml \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/airbar-finance/"
+
       - name: Deploy with Docker Compose
         run: |
+          COMPOSE_ENV="${{ inputs.environment }}"
+          if [ "$COMPOSE_ENV" = "production" ]; then
+            COMPOSE_ENV="prod"
+          fi
           ssh -i ~/.ssh/deploy_key \
             -p "${{ secrets.SSH_PORT || '22' }}" \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
-            "cd ~/airbar-finance && \
+            "docker network create airbar-${COMPOSE_ENV} 2>/dev/null || true && \
+             cd ~/airbar-finance && \
+             COMPOSE_PROJECT_NAME=airbar-finance-${COMPOSE_ENV} \
+             COMPOSE_FILE=docker-compose.yml:docker-compose.${COMPOSE_ENV}.yml \
              IMAGE_TAG=${{ inputs.image-tag }} \
              docker compose up -d --remove-orphans"
 

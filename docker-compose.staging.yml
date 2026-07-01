@@ -1,0 +1,38 @@
+# Staging deploy — pre-built image from GHCR.
+# Requires on the server:
+#   - .env.staging (copy from .env.staging.example; never commit secrets)
+#   - IMAGE_TAG set by CI (e.g. ghcr.io/mamahoos/airbar-finance:sha-abc1234)
+#
+# Run migrations before first deploy:
+#   goose -dir internal/infrastructure/postgres/migrations postgres "$DATABASE_URL" up
+
+services:
+  postgres-finance:
+    container_name: airbar-finance-postgres-staging
+    env_file: .env.staging
+    ports:
+      - '${POSTGRES_PORT:-5436}:5432'
+
+  redis:
+    container_name: airbar-finance-redis-staging
+    ports:
+      - '${REDIS_PORT:-6383}:6379'
+
+  airbar-finance:
+    image: ${IMAGE_TAG:?IMAGE_TAG is required for staging deploy}
+    container_name: airbar-finance-app-staging
+    env_file: .env.staging
+    ports:
+      - '${APP_PORT:-8082}:8080'
+      - '${GRPC_PORT:-50053}:50051'
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+networks:
+  internal:
+    name: airbar-staging
+    external: true
