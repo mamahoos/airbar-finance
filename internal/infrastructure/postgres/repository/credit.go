@@ -94,6 +94,8 @@ func (r *CreditRepository) GetGrantByID(ctx context.Context, id string) (*domain
 	var grant domaincredit.Grant
 	var status string
 	var campaignRef *string
+	var reverseReason *string
+	var reversedBy *string
 	err := r.pool.QueryRow(ctx, `
 		SELECT id, user_id, amount_rials, reason, campaign_ref, expires_at,
 			status, granted_by, idempotency_key, reversed_at, reverse_reason, reversed_by, created_at
@@ -110,8 +112,8 @@ func (r *CreditRepository) GetGrantByID(ctx context.Context, id string) (*domain
 		&grant.GrantedBy,
 		&grant.IdempotencyKey,
 		&grant.ReversedAt,
-		&grant.ReverseReason,
-		&grant.ReversedBy,
+		&reverseReason,
+		&reversedBy,
 		&grant.CreatedAt,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
@@ -122,6 +124,12 @@ func (r *CreditRepository) GetGrantByID(ctx context.Context, id string) (*domain
 	}
 	if campaignRef != nil {
 		grant.CampaignRef = *campaignRef
+	}
+	if reverseReason != nil {
+		grant.ReverseReason = *reverseReason
+	}
+	if reversedBy != nil {
+		grant.ReversedBy = *reversedBy
 	}
 	grant.Status = domaincredit.GrantStatus(status)
 	return &grant, nil
@@ -177,6 +185,8 @@ func (r *CreditRepository) ListGrantsByUserID(ctx context.Context, userID string
 		var grant domaincredit.Grant
 		var status string
 		var campaignRef *string
+		var reverseReason *string
+		var reversedBy *string
 		if err := rows.Scan(
 			&grant.ID,
 			&grant.UserID,
@@ -188,14 +198,20 @@ func (r *CreditRepository) ListGrantsByUserID(ctx context.Context, userID string
 			&grant.GrantedBy,
 			&grant.IdempotencyKey,
 			&grant.ReversedAt,
-			&grant.ReverseReason,
-			&grant.ReversedBy,
+			&reverseReason,
+			&reversedBy,
 			&grant.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
 		if campaignRef != nil {
 			grant.CampaignRef = *campaignRef
+		}
+		if reverseReason != nil {
+			grant.ReverseReason = *reverseReason
+		}
+		if reversedBy != nil {
+			grant.ReversedBy = *reversedBy
 		}
 		grant.Status = domaincredit.GrantStatus(status)
 		grants = append(grants, grant)
