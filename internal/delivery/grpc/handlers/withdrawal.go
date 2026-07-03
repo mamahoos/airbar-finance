@@ -14,6 +14,10 @@ type WithdrawalHandler struct {
 	financev1.UnimplementedWithdrawalServiceServer
 	createWithdrawal  *withdrawaluc.CreateWithdrawal
 	listWithdrawals   *withdrawaluc.ListWithdrawals
+	approveWithdrawal *withdrawaluc.ApproveWithdrawal
+	markSent          *withdrawaluc.MarkWithdrawalSent
+	settleWithdrawal  *withdrawaluc.SettleWithdrawal
+	failWithdrawal    *withdrawaluc.FailWithdrawal
 	processWithdrawal *withdrawaluc.ProcessWithdrawal
 	rejectWithdrawal  *withdrawaluc.RejectWithdrawal
 }
@@ -22,12 +26,20 @@ type WithdrawalHandler struct {
 func NewWithdrawalHandler(
 	createWithdrawal *withdrawaluc.CreateWithdrawal,
 	listWithdrawals *withdrawaluc.ListWithdrawals,
+	approveWithdrawal *withdrawaluc.ApproveWithdrawal,
+	markSent *withdrawaluc.MarkWithdrawalSent,
+	settleWithdrawal *withdrawaluc.SettleWithdrawal,
+	failWithdrawal *withdrawaluc.FailWithdrawal,
 	processWithdrawal *withdrawaluc.ProcessWithdrawal,
 	rejectWithdrawal *withdrawaluc.RejectWithdrawal,
 ) *WithdrawalHandler {
 	return &WithdrawalHandler{
 		createWithdrawal:  createWithdrawal,
 		listWithdrawals:   listWithdrawals,
+		approveWithdrawal: approveWithdrawal,
+		markSent:          markSent,
+		settleWithdrawal:  settleWithdrawal,
+		failWithdrawal:    failWithdrawal,
 		processWithdrawal: processWithdrawal,
 		rejectWithdrawal:  rejectWithdrawal,
 	}
@@ -65,6 +77,46 @@ func (h *WithdrawalHandler) ListWithdrawals(ctx context.Context, req *financev1.
 		resp.Items[i] = toWithdrawalResponse(&items[i])
 	}
 	return resp, nil
+}
+
+func (h *WithdrawalHandler) ApproveWithdrawal(ctx context.Context, req *financev1.ApproveWithdrawalRequest) (*financev1.WithdrawalResponse, error) {
+	withdrawal, err := h.approveWithdrawal.Execute(ctx, req.GetWithdrawalId())
+	if err != nil {
+		return nil, mapWithdrawalError(err)
+	}
+	return toWithdrawalResponse(withdrawal), nil
+}
+
+func (h *WithdrawalHandler) MarkWithdrawalSent(ctx context.Context, req *financev1.MarkWithdrawalSentRequest) (*financev1.WithdrawalResponse, error) {
+	withdrawal, err := h.markSent.Execute(ctx, withdrawaluc.MarkWithdrawalSentInput{
+		WithdrawalID:  req.GetWithdrawalId(),
+		ProviderRef:   req.GetProviderRef(),
+		PayoutChannel: req.GetPayoutChannel(),
+		ReceiptURL:    req.GetReceiptUrl(),
+	})
+	if err != nil {
+		return nil, mapWithdrawalError(err)
+	}
+	return toWithdrawalResponse(withdrawal), nil
+}
+
+func (h *WithdrawalHandler) SettleWithdrawal(ctx context.Context, req *financev1.SettleWithdrawalRequest) (*financev1.WithdrawalResponse, error) {
+	withdrawal, err := h.settleWithdrawal.Execute(ctx, req.GetWithdrawalId())
+	if err != nil {
+		return nil, mapWithdrawalError(err)
+	}
+	return toWithdrawalResponse(withdrawal), nil
+}
+
+func (h *WithdrawalHandler) FailWithdrawal(ctx context.Context, req *financev1.FailWithdrawalRequest) (*financev1.WithdrawalResponse, error) {
+	withdrawal, err := h.failWithdrawal.Execute(ctx, withdrawaluc.FailWithdrawalInput{
+		WithdrawalID: req.GetWithdrawalId(),
+		Reason:       req.GetReason(),
+	})
+	if err != nil {
+		return nil, mapWithdrawalError(err)
+	}
+	return toWithdrawalResponse(withdrawal), nil
 }
 
 func (h *WithdrawalHandler) ProcessWithdrawal(ctx context.Context, req *financev1.ProcessWithdrawalRequest) (*financev1.WithdrawalResponse, error) {

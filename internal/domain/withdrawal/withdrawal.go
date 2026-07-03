@@ -6,9 +6,13 @@ import "time"
 type Status string
 
 const (
-	StatusPending   Status = "PENDING"
-	StatusCompleted Status = "COMPLETED"
-	StatusRejected  Status = "REJECTED"
+	StatusPending    Status = "PENDING"
+	StatusApproved   Status = "APPROVED"
+	StatusSentToBank Status = "SENT_TO_BANK"
+	StatusSettled    Status = "SETTLED"
+	StatusFailed     Status = "FAILED"
+	StatusCompleted  Status = "COMPLETED"
+	StatusRejected   Status = "REJECTED"
 )
 
 // Withdrawal is a payout request aggregate.

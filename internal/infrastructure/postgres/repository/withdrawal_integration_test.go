@@ -39,11 +39,15 @@ func TestWithdrawalReserveProcessRejectIntegration(t *testing.T) {
 	postJournal := ledgeruc.NewPostJournal(ledgerRepo, ensureWallet)
 	getBalance := walletuc.NewGetBalance(ledgerRepo)
 	createWithdrawal := withdrawaluc.NewCreateWithdrawal(pool, withdrawalRepo, postJournal, getBalance, nil)
-	processWithdrawal := withdrawaluc.NewProcessWithdrawal(withdrawalRepo, nil)
+	approveWithdrawal := withdrawaluc.NewApproveWithdrawal(withdrawalRepo, nil)
+	markWithdrawalSent := withdrawaluc.NewMarkWithdrawalSent(withdrawalRepo, nil)
+	settleWithdrawal := withdrawaluc.NewSettleWithdrawal(withdrawalRepo, nil)
+	failWithdrawal := withdrawaluc.NewFailWithdrawal(pool, withdrawalRepo, postJournal, nil)
 	rejectWithdrawal := withdrawaluc.NewRejectWithdrawal(pool, withdrawalRepo, postJournal, nil)
 
 	processUser := fmt.Sprintf("wd-process-%s", uuid.NewString()[:8])
 	rejectUser := fmt.Sprintf("wd-reject-%s", uuid.NewString()[:8])
+	failUser := fmt.Sprintf("wd-fail-%s", uuid.NewString()[:8])
 	amount := int64(8000)
 
 	fundWallet := func(userID, refID string, fundAmount int64) {
@@ -62,6 +66,7 @@ func TestWithdrawalReserveProcessRejectIntegration(t *testing.T) {
 
 	fundWallet(processUser, processUser+":topup", amount)
 	fundWallet(rejectUser, rejectUser+":topup", amount)
+	fundWallet(failUser, failUser+":topup", amount)
 
 	payoutBeforeDebit, payoutBeforeCredit, err := ledgerRepo.SumByAccount(ctx, domainledger.AccountIRPayoutClearing)
 	if err != nil {
@@ -102,20 +107,38 @@ func TestWithdrawalReserveProcessRejectIntegration(t *testing.T) {
 		t.Fatalf("payout clearing delta = %d, want %d", payoutDelta, amount)
 	}
 
-	withdrawal, err = processWithdrawal.Execute(ctx, withdrawaluc.ProcessWithdrawalInput{
-		WithdrawalID:   withdrawal.ID,
-		ProviderRef:    "bank-ref-1",
-		PayoutChannel:  "PAYA",
-		ReceiptURL:     "https://receipts.example/bank-ref-1",
+	withdrawal, err = approveWithdrawal.Execute(ctx, withdrawal.ID)
+	if err != nil {
+		t.Fatalf("ApproveWithdrawal() error = %v", err)
+	}
+	if withdrawal.Status != domainwithdrawal.StatusApproved {
+		t.Fatalf("status after approve = %q, want APPROVED", withdrawal.Status)
+	}
+
+	withdrawal, err = markWithdrawalSent.Execute(ctx, withdrawaluc.MarkWithdrawalSentInput{
+		WithdrawalID:  withdrawal.ID,
+		ProviderRef:   "bank-ref-1",
+		PayoutChannel: "PAYA",
+		ReceiptURL:    "https://receipts.example/bank-ref-1",
 	})
 	if err != nil {
-		t.Fatalf("ProcessWithdrawal() error = %v", err)
+		t.Fatalf("MarkWithdrawalSent() error = %v", err)
 	}
-	if withdrawal.Status != domainwithdrawal.StatusCompleted {
-		t.Fatalf("status after process = %q, want COMPLETED", withdrawal.Status)
+	if withdrawal.Status != domainwithdrawal.StatusSentToBank {
+		t.Fatalf("status after sent = %q, want SENT_TO_BANK", withdrawal.Status)
 	}
 	if withdrawal.ProviderRef != "bank-ref-1" || withdrawal.PayoutChannel != "PAYA" || withdrawal.ReceiptURL == "" {
 		t.Fatalf("receipt fields not persisted: %+v", withdrawal)
+	}
+	withdrawal, err = settleWithdrawal.Execute(ctx, withdrawal.ID)
+	if err != nil {
+		t.Fatalf("SettleWithdrawal() error = %v", err)
+	}
+	if withdrawal.Status != domainwithdrawal.StatusSettled {
+		t.Fatalf("status after settle = %q, want SETTLED", withdrawal.Status)
+	}
+	if withdrawal.ProcessedAt == nil {
+		t.Fatal("settled withdrawal should set ProcessedAt")
 	}
 
 	rejectWD, err := createWithdrawal.Execute(ctx, withdrawaluc.CreateWithdrawalInput{
@@ -146,5 +169,37 @@ func TestWithdrawalReserveProcessRejectIntegration(t *testing.T) {
 	}
 	if balance != amount {
 		t.Fatalf("wallet balance after reject = %d, want %d", balance, amount)
+	}
+
+	failWD, err := createWithdrawal.Execute(ctx, withdrawaluc.CreateWithdrawalInput{
+		UserID:               failUser,
+		Amount:               amount,
+		DestinationIBAN:      "IR120000000000000000000003",
+		UserActive:           true,
+		FinancialKycApproved: true,
+	})
+	if err != nil {
+		t.Fatalf("CreateWithdrawal(fail) error = %v", err)
+	}
+	failWD, err = approveWithdrawal.Execute(ctx, failWD.ID)
+	if err != nil {
+		t.Fatalf("ApproveWithdrawal(fail) error = %v", err)
+	}
+	failWD, err = failWithdrawal.Execute(ctx, withdrawaluc.FailWithdrawalInput{
+		WithdrawalID: failWD.ID,
+		Reason:       "bank rejected payout",
+	})
+	if err != nil {
+		t.Fatalf("FailWithdrawal() error = %v", err)
+	}
+	if failWD.Status != domainwithdrawal.StatusFailed {
+		t.Fatalf("status after fail = %q, want FAILED", failWD.Status)
+	}
+	balance, err = getBalance.Execute(ctx, failUser)
+	if err != nil {
+		t.Fatalf("GetBalance() after fail error = %v", err)
+	}
+	if balance != amount {
+		t.Fatalf("wallet balance after fail = %d, want %d", balance, amount)
 	}
 }

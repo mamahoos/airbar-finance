@@ -921,10 +921,14 @@ var WalletService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	WithdrawalService_CreateWithdrawal_FullMethodName  = "/airbar.finance.v1.WithdrawalService/CreateWithdrawal"
-	WithdrawalService_ListWithdrawals_FullMethodName   = "/airbar.finance.v1.WithdrawalService/ListWithdrawals"
-	WithdrawalService_ProcessWithdrawal_FullMethodName = "/airbar.finance.v1.WithdrawalService/ProcessWithdrawal"
-	WithdrawalService_RejectWithdrawal_FullMethodName  = "/airbar.finance.v1.WithdrawalService/RejectWithdrawal"
+	WithdrawalService_CreateWithdrawal_FullMethodName   = "/airbar.finance.v1.WithdrawalService/CreateWithdrawal"
+	WithdrawalService_ListWithdrawals_FullMethodName    = "/airbar.finance.v1.WithdrawalService/ListWithdrawals"
+	WithdrawalService_ApproveWithdrawal_FullMethodName  = "/airbar.finance.v1.WithdrawalService/ApproveWithdrawal"
+	WithdrawalService_MarkWithdrawalSent_FullMethodName = "/airbar.finance.v1.WithdrawalService/MarkWithdrawalSent"
+	WithdrawalService_SettleWithdrawal_FullMethodName   = "/airbar.finance.v1.WithdrawalService/SettleWithdrawal"
+	WithdrawalService_FailWithdrawal_FullMethodName     = "/airbar.finance.v1.WithdrawalService/FailWithdrawal"
+	WithdrawalService_ProcessWithdrawal_FullMethodName  = "/airbar.finance.v1.WithdrawalService/ProcessWithdrawal"
+	WithdrawalService_RejectWithdrawal_FullMethodName   = "/airbar.finance.v1.WithdrawalService/RejectWithdrawal"
 )
 
 // WithdrawalServiceClient is the client API for WithdrawalService service.
@@ -933,6 +937,10 @@ const (
 type WithdrawalServiceClient interface {
 	CreateWithdrawal(ctx context.Context, in *CreateWithdrawalRequest, opts ...grpc.CallOption) (*WithdrawalResponse, error)
 	ListWithdrawals(ctx context.Context, in *ListWithdrawalsRequest, opts ...grpc.CallOption) (*WithdrawalsResponse, error)
+	ApproveWithdrawal(ctx context.Context, in *ApproveWithdrawalRequest, opts ...grpc.CallOption) (*WithdrawalResponse, error)
+	MarkWithdrawalSent(ctx context.Context, in *MarkWithdrawalSentRequest, opts ...grpc.CallOption) (*WithdrawalResponse, error)
+	SettleWithdrawal(ctx context.Context, in *SettleWithdrawalRequest, opts ...grpc.CallOption) (*WithdrawalResponse, error)
+	FailWithdrawal(ctx context.Context, in *FailWithdrawalRequest, opts ...grpc.CallOption) (*WithdrawalResponse, error)
 	ProcessWithdrawal(ctx context.Context, in *ProcessWithdrawalRequest, opts ...grpc.CallOption) (*WithdrawalResponse, error)
 	RejectWithdrawal(ctx context.Context, in *RejectWithdrawalRequest, opts ...grpc.CallOption) (*WithdrawalResponse, error)
 }
@@ -965,6 +973,46 @@ func (c *withdrawalServiceClient) ListWithdrawals(ctx context.Context, in *ListW
 	return out, nil
 }
 
+func (c *withdrawalServiceClient) ApproveWithdrawal(ctx context.Context, in *ApproveWithdrawalRequest, opts ...grpc.CallOption) (*WithdrawalResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WithdrawalResponse)
+	err := c.cc.Invoke(ctx, WithdrawalService_ApproveWithdrawal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *withdrawalServiceClient) MarkWithdrawalSent(ctx context.Context, in *MarkWithdrawalSentRequest, opts ...grpc.CallOption) (*WithdrawalResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WithdrawalResponse)
+	err := c.cc.Invoke(ctx, WithdrawalService_MarkWithdrawalSent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *withdrawalServiceClient) SettleWithdrawal(ctx context.Context, in *SettleWithdrawalRequest, opts ...grpc.CallOption) (*WithdrawalResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WithdrawalResponse)
+	err := c.cc.Invoke(ctx, WithdrawalService_SettleWithdrawal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *withdrawalServiceClient) FailWithdrawal(ctx context.Context, in *FailWithdrawalRequest, opts ...grpc.CallOption) (*WithdrawalResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WithdrawalResponse)
+	err := c.cc.Invoke(ctx, WithdrawalService_FailWithdrawal_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *withdrawalServiceClient) ProcessWithdrawal(ctx context.Context, in *ProcessWithdrawalRequest, opts ...grpc.CallOption) (*WithdrawalResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(WithdrawalResponse)
@@ -991,6 +1039,10 @@ func (c *withdrawalServiceClient) RejectWithdrawal(ctx context.Context, in *Reje
 type WithdrawalServiceServer interface {
 	CreateWithdrawal(context.Context, *CreateWithdrawalRequest) (*WithdrawalResponse, error)
 	ListWithdrawals(context.Context, *ListWithdrawalsRequest) (*WithdrawalsResponse, error)
+	ApproveWithdrawal(context.Context, *ApproveWithdrawalRequest) (*WithdrawalResponse, error)
+	MarkWithdrawalSent(context.Context, *MarkWithdrawalSentRequest) (*WithdrawalResponse, error)
+	SettleWithdrawal(context.Context, *SettleWithdrawalRequest) (*WithdrawalResponse, error)
+	FailWithdrawal(context.Context, *FailWithdrawalRequest) (*WithdrawalResponse, error)
 	ProcessWithdrawal(context.Context, *ProcessWithdrawalRequest) (*WithdrawalResponse, error)
 	RejectWithdrawal(context.Context, *RejectWithdrawalRequest) (*WithdrawalResponse, error)
 	mustEmbedUnimplementedWithdrawalServiceServer()
@@ -1008,6 +1060,18 @@ func (UnimplementedWithdrawalServiceServer) CreateWithdrawal(context.Context, *C
 }
 func (UnimplementedWithdrawalServiceServer) ListWithdrawals(context.Context, *ListWithdrawalsRequest) (*WithdrawalsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListWithdrawals not implemented")
+}
+func (UnimplementedWithdrawalServiceServer) ApproveWithdrawal(context.Context, *ApproveWithdrawalRequest) (*WithdrawalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ApproveWithdrawal not implemented")
+}
+func (UnimplementedWithdrawalServiceServer) MarkWithdrawalSent(context.Context, *MarkWithdrawalSentRequest) (*WithdrawalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MarkWithdrawalSent not implemented")
+}
+func (UnimplementedWithdrawalServiceServer) SettleWithdrawal(context.Context, *SettleWithdrawalRequest) (*WithdrawalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SettleWithdrawal not implemented")
+}
+func (UnimplementedWithdrawalServiceServer) FailWithdrawal(context.Context, *FailWithdrawalRequest) (*WithdrawalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FailWithdrawal not implemented")
 }
 func (UnimplementedWithdrawalServiceServer) ProcessWithdrawal(context.Context, *ProcessWithdrawalRequest) (*WithdrawalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ProcessWithdrawal not implemented")
@@ -1072,6 +1136,78 @@ func _WithdrawalService_ListWithdrawals_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WithdrawalService_ApproveWithdrawal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ApproveWithdrawalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WithdrawalServiceServer).ApproveWithdrawal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WithdrawalService_ApproveWithdrawal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WithdrawalServiceServer).ApproveWithdrawal(ctx, req.(*ApproveWithdrawalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _WithdrawalService_MarkWithdrawalSent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MarkWithdrawalSentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WithdrawalServiceServer).MarkWithdrawalSent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WithdrawalService_MarkWithdrawalSent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WithdrawalServiceServer).MarkWithdrawalSent(ctx, req.(*MarkWithdrawalSentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _WithdrawalService_SettleWithdrawal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SettleWithdrawalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WithdrawalServiceServer).SettleWithdrawal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WithdrawalService_SettleWithdrawal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WithdrawalServiceServer).SettleWithdrawal(ctx, req.(*SettleWithdrawalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _WithdrawalService_FailWithdrawal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FailWithdrawalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WithdrawalServiceServer).FailWithdrawal(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WithdrawalService_FailWithdrawal_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WithdrawalServiceServer).FailWithdrawal(ctx, req.(*FailWithdrawalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _WithdrawalService_ProcessWithdrawal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ProcessWithdrawalRequest)
 	if err := dec(in); err != nil {
@@ -1122,6 +1258,22 @@ var WithdrawalService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListWithdrawals",
 			Handler:    _WithdrawalService_ListWithdrawals_Handler,
+		},
+		{
+			MethodName: "ApproveWithdrawal",
+			Handler:    _WithdrawalService_ApproveWithdrawal_Handler,
+		},
+		{
+			MethodName: "MarkWithdrawalSent",
+			Handler:    _WithdrawalService_MarkWithdrawalSent_Handler,
+		},
+		{
+			MethodName: "SettleWithdrawal",
+			Handler:    _WithdrawalService_SettleWithdrawal_Handler,
+		},
+		{
+			MethodName: "FailWithdrawal",
+			Handler:    _WithdrawalService_FailWithdrawal_Handler,
 		},
 		{
 			MethodName: "ProcessWithdrawal",

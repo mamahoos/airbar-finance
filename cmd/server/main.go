@@ -129,6 +129,10 @@ func run(logger *slog.Logger) error {
 
 	createWithdrawal := withdrawaluc.NewCreateWithdrawal(dbPool, withdrawalRepo, postJournal, getBalance, auditEmitter)
 	listWithdrawals := withdrawaluc.NewListWithdrawals(withdrawalRepo)
+	approveWithdrawal := withdrawaluc.NewApproveWithdrawal(withdrawalRepo, auditEmitter)
+	markWithdrawalSent := withdrawaluc.NewMarkWithdrawalSent(withdrawalRepo, auditEmitter)
+	settleWithdrawal := withdrawaluc.NewSettleWithdrawal(withdrawalRepo, auditEmitter)
+	failWithdrawal := withdrawaluc.NewFailWithdrawal(dbPool, withdrawalRepo, postJournal, auditEmitter)
 	processWithdrawal := withdrawaluc.NewProcessWithdrawal(withdrawalRepo, auditEmitter)
 	rejectWithdrawal := withdrawaluc.NewRejectWithdrawal(dbPool, withdrawalRepo, postJournal, auditEmitter)
 
@@ -142,6 +146,10 @@ func run(logger *slog.Logger) error {
 	withdrawalHandler := handlers.NewWithdrawalHandler(
 		createWithdrawal,
 		listWithdrawals,
+		approveWithdrawal,
+		markWithdrawalSent,
+		settleWithdrawal,
+		failWithdrawal,
 		processWithdrawal,
 		rejectWithdrawal,
 	)

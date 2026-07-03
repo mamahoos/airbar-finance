@@ -43,6 +43,10 @@ service WalletService {
 service WithdrawalService {
   rpc CreateWithdrawal(CreateWithdrawalRequest) returns (WithdrawalResponse);
   rpc ListWithdrawals(ListWithdrawalsRequest) returns (WithdrawalsResponse);
+  rpc ApproveWithdrawal(ApproveWithdrawalRequest) returns (WithdrawalResponse);
+  rpc MarkWithdrawalSent(MarkWithdrawalSentRequest) returns (WithdrawalResponse);
+  rpc SettleWithdrawal(SettleWithdrawalRequest) returns (WithdrawalResponse);
+  rpc FailWithdrawal(FailWithdrawalRequest) returns (WithdrawalResponse);
   rpc ProcessWithdrawal(ProcessWithdrawalRequest) returns (WithdrawalResponse);
   rpc RejectWithdrawal(RejectWithdrawalRequest) returns (WithdrawalResponse);
 }
@@ -228,6 +232,30 @@ message CreateWithdrawalRequest {
 message ListWithdrawalsRequest {
   string user_id = 1;
   string status = 2;
+}
+
+message ApproveWithdrawalRequest {
+  RequestContext context = 1;
+  string withdrawal_id = 2;
+}
+
+message MarkWithdrawalSentRequest {
+  RequestContext context = 1;
+  string withdrawal_id = 2;
+  string provider_ref = 3;
+  string payout_channel = 4;
+  string receipt_url = 5;
+}
+
+message SettleWithdrawalRequest {
+  RequestContext context = 1;
+  string withdrawal_id = 2;
+}
+
+message FailWithdrawalRequest {
+  RequestContext context = 1;
+  string withdrawal_id = 2;
+  string reason = 3;
 }
 
 message ProcessWithdrawalRequest {
