@@ -6,6 +6,7 @@ const (
 	AggregateEscrow       = "escrow"
 	AggregatePaymentOrder = "payment_order"
 	AggregateWithdrawal   = "withdrawal"
+	AggregateCreditGrant  = "credit_grant"
 )
 
 // EventType classifies finance audit events.
@@ -18,6 +19,8 @@ const (
 	EventPaymentStatusChanged EventType = "PAYMENT_STATUS_CHANGED"
 	EventWithdrawalCreated   EventType = "WITHDRAWAL_CREATED"
 	EventWithdrawalStatusChanged EventType = "WITHDRAWAL_STATUS_CHANGED"
+	EventCreditGranted       EventType = "CREDIT_GRANTED"
+	EventCreditReversed      EventType = "CREDIT_REVERSED"
 )
 
 // Event is an immutable finance audit record.

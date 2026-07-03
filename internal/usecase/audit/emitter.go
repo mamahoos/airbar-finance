@@ -77,3 +77,21 @@ func (e *Emitter) EmitWithdrawalStatusChanged(ctx context.Context, withdrawalID,
 		"status": status,
 	})
 }
+
+// EmitCreditGranted records promo credit grant.
+func (e *Emitter) EmitCreditGranted(ctx context.Context, grantID, userID string, amount int64, status string) error {
+	return e.Emit(ctx, domainaudit.AggregateCreditGrant, grantID, domainaudit.EventCreditGranted, map[string]any{
+		"user_id": userID,
+		"amount":  amount,
+		"status":  status,
+	})
+}
+
+// EmitCreditReversed records promo credit reversal.
+func (e *Emitter) EmitCreditReversed(ctx context.Context, grantID, userID string, amount int64, reason string) error {
+	return e.Emit(ctx, domainaudit.AggregateCreditGrant, grantID, domainaudit.EventCreditReversed, map[string]any{
+		"user_id": userID,
+		"amount":  amount,
+		"reason":  reason,
+	})
+}

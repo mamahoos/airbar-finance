@@ -21,6 +21,7 @@ import (
 	redisinfra "github.com/mamahoos/airbar-finance/internal/infrastructure/redis"
 	"github.com/mamahoos/airbar-finance/internal/infrastructure/zibal"
 	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
+	credituc "github.com/mamahoos/airbar-finance/internal/usecase/credit"
 	escrowuc "github.com/mamahoos/airbar-finance/internal/usecase/escrow"
 	idempotencyuc "github.com/mamahoos/airbar-finance/internal/usecase/idempotency"
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
@@ -72,6 +73,7 @@ func run(logger *slog.Logger) error {
 	providerEventRepo := repository.NewProviderEventRepository(dbPool)
 
 	withdrawalRepo := repository.NewWithdrawalRepository(dbPool)
+	creditRepo := repository.NewCreditRepository(dbPool)
 	idempotencyRepo := repository.NewIdempotencyRepository(dbPool)
 	idempotencyCache := redisinfra.NewIdempotencyCache(redisClient)
 	idempotencyGuard := idempotencyuc.NewGuard(idempotencyRepo, idempotencyCache)
@@ -81,6 +83,7 @@ func run(logger *slog.Logger) error {
 	zibalClient := zibal.NewClient(cfg)
 
 	ensureWallet := walletuc.NewEnsureWalletAccount(walletRepo)
+	ensureCredit := credituc.NewEnsureCreditAccount(creditRepo)
 	postJournal := ledgeruc.NewPostJournal(ledgerRepo, ensureWallet)
 	getBalance := walletuc.NewGetBalance(ledgerRepo)
 	getWallet := walletuc.NewGetWallet(getBalance)
@@ -162,6 +165,12 @@ func run(logger *slog.Logger) error {
 	)
 	providerEventHandler := handlers.NewProviderEventHandler(listProviderEvents)
 
+	getCreditBalance := credituc.NewGetBalance(ledgerRepo)
+	listCreditGrants := credituc.NewListGrants(creditRepo, getCreditBalance)
+	grantCredit := credituc.NewGrantCredit(dbPool, creditRepo, ensureCredit, postJournal, auditEmitter)
+	reverseCreditGrant := credituc.NewReverseCreditGrant(dbPool, creditRepo, postJournal, auditEmitter)
+	creditHandler := handlers.NewCreditHandler(grantCredit, reverseCreditGrant, getCreditBalance, listCreditGrants)
+
 	grpcServer, err := deliverygrpc.NewServer(
 		cfg.GRPCPort,
 		checker,
@@ -173,6 +182,7 @@ func run(logger *slog.Logger) error {
 		treasuryHandler,
 		reconciliationHandler,
 		providerEventHandler,
+		creditHandler,
 	)
 	if err != nil {
 		return err

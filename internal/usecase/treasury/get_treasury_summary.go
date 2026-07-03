@@ -65,6 +65,12 @@ func (uc *GetTreasurySummary) Execute(ctx context.Context, currency string) (*Su
 	}
 	accounts[string(domainledger.AccountAirbarFeeRevenue)] = fee
 
+	promoExpense, err := uc.expenseBalance(ctx, domainledger.AccountAirbarPromoExpense)
+	if err != nil {
+		return nil, err
+	}
+	accounts[string(domainledger.AccountAirbarPromoExpense)] = promoExpense
+
 	walletNet, err := uc.liabilityBalance(ctx, domainledger.WalletAccountLikePattern())
 	if err != nil {
 		return nil, err
@@ -76,6 +82,12 @@ func (uc *GetTreasurySummary) Execute(ctx context.Context, currency string) (*Su
 		return nil, err
 	}
 	accounts["AGGREGATE_ESCROW_LIABILITY"] = escrowNet
+
+	promoNet, err := uc.liabilityBalance(ctx, domainledger.PromoCreditAccountLikePattern())
+	if err != nil {
+		return nil, err
+	}
+	accounts["AGGREGATE_PROMO_CREDIT_LIABILITY"] = promoNet
 
 	return &Summary{Currency: currency, Accounts: accounts}, nil
 }
@@ -94,6 +106,14 @@ func (uc *GetTreasurySummary) revenueBalance(ctx context.Context, code domainled
 		return 0, err
 	}
 	return credit - debit, nil
+}
+
+func (uc *GetTreasurySummary) expenseBalance(ctx context.Context, code domainledger.AccountCode) (int64, error) {
+	debit, credit, err := uc.ledger.SumByAccount(ctx, code)
+	if err != nil {
+		return 0, err
+	}
+	return debit - credit, nil
 }
 
 func (uc *GetTreasurySummary) liabilityBalance(ctx context.Context, pattern string) (int64, error) {

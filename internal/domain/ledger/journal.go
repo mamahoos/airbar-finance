@@ -13,6 +13,8 @@ const (
 	RefTypeWalletTopup              RefType = "WALLET_TOPUP"
 	RefTypeWithdrawalReserve        RefType = "WITHDRAWAL_RESERVE"
 	RefTypeWithdrawalRejectReversal RefType = "WITHDRAWAL_REJECT_REVERSAL"
+	RefTypePromoCreditGrant         RefType = "PROMO_CREDIT_GRANT"
+	RefTypePromoCreditReverse       RefType = "PROMO_CREDIT_REVERSE"
 )
 
 // EntryLine is input for constructing a journal entry before persistence.

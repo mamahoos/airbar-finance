@@ -2771,6 +2771,522 @@ func (x *ProviderEventsResponse) GetTotal() int64 {
 	return 0
 }
 
+type GrantCreditRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Context       *RequestContext        `protobuf:"bytes,1,opt,name=context,proto3" json:"context,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Amount        string                 `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	Reason        string                 `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
+	CampaignRef   string                 `protobuf:"bytes,5,opt,name=campaign_ref,json=campaignRef,proto3" json:"campaign_ref,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	GrantedBy     string                 `protobuf:"bytes,7,opt,name=granted_by,json=grantedBy,proto3" json:"granted_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GrantCreditRequest) Reset() {
+	*x = GrantCreditRequest{}
+	mi := &file_airbar_finance_v1_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GrantCreditRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GrantCreditRequest) ProtoMessage() {}
+
+func (x *GrantCreditRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_airbar_finance_v1_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GrantCreditRequest.ProtoReflect.Descriptor instead.
+func (*GrantCreditRequest) Descriptor() ([]byte, []int) {
+	return file_airbar_finance_v1_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *GrantCreditRequest) GetContext() *RequestContext {
+	if x != nil {
+		return x.Context
+	}
+	return nil
+}
+
+func (x *GrantCreditRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *GrantCreditRequest) GetAmount() string {
+	if x != nil {
+		return x.Amount
+	}
+	return ""
+}
+
+func (x *GrantCreditRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *GrantCreditRequest) GetCampaignRef() string {
+	if x != nil {
+		return x.CampaignRef
+	}
+	return ""
+}
+
+func (x *GrantCreditRequest) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+func (x *GrantCreditRequest) GetGrantedBy() string {
+	if x != nil {
+		return x.GrantedBy
+	}
+	return ""
+}
+
+type ReverseCreditGrantRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Context       *RequestContext        `protobuf:"bytes,1,opt,name=context,proto3" json:"context,omitempty"`
+	GrantId       string                 `protobuf:"bytes,2,opt,name=grant_id,json=grantId,proto3" json:"grant_id,omitempty"`
+	ReverseReason string                 `protobuf:"bytes,3,opt,name=reverse_reason,json=reverseReason,proto3" json:"reverse_reason,omitempty"`
+	ReversedBy    string                 `protobuf:"bytes,4,opt,name=reversed_by,json=reversedBy,proto3" json:"reversed_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReverseCreditGrantRequest) Reset() {
+	*x = ReverseCreditGrantRequest{}
+	mi := &file_airbar_finance_v1_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReverseCreditGrantRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReverseCreditGrantRequest) ProtoMessage() {}
+
+func (x *ReverseCreditGrantRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_airbar_finance_v1_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReverseCreditGrantRequest.ProtoReflect.Descriptor instead.
+func (*ReverseCreditGrantRequest) Descriptor() ([]byte, []int) {
+	return file_airbar_finance_v1_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *ReverseCreditGrantRequest) GetContext() *RequestContext {
+	if x != nil {
+		return x.Context
+	}
+	return nil
+}
+
+func (x *ReverseCreditGrantRequest) GetGrantId() string {
+	if x != nil {
+		return x.GrantId
+	}
+	return ""
+}
+
+func (x *ReverseCreditGrantRequest) GetReverseReason() string {
+	if x != nil {
+		return x.ReverseReason
+	}
+	return ""
+}
+
+func (x *ReverseCreditGrantRequest) GetReversedBy() string {
+	if x != nil {
+		return x.ReversedBy
+	}
+	return ""
+}
+
+type GetCreditBalanceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCreditBalanceRequest) Reset() {
+	*x = GetCreditBalanceRequest{}
+	mi := &file_airbar_finance_v1_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCreditBalanceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCreditBalanceRequest) ProtoMessage() {}
+
+func (x *GetCreditBalanceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_airbar_finance_v1_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCreditBalanceRequest.ProtoReflect.Descriptor instead.
+func (*GetCreditBalanceRequest) Descriptor() ([]byte, []int) {
+	return file_airbar_finance_v1_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *GetCreditBalanceRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type CreditBalanceResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Currency      string                 `protobuf:"bytes,2,opt,name=currency,proto3" json:"currency,omitempty"`
+	Balance       string                 `protobuf:"bytes,3,opt,name=balance,proto3" json:"balance,omitempty"`
+	AccountCode   string                 `protobuf:"bytes,4,opt,name=account_code,json=accountCode,proto3" json:"account_code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreditBalanceResponse) Reset() {
+	*x = CreditBalanceResponse{}
+	mi := &file_airbar_finance_v1_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreditBalanceResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreditBalanceResponse) ProtoMessage() {}
+
+func (x *CreditBalanceResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_airbar_finance_v1_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreditBalanceResponse.ProtoReflect.Descriptor instead.
+func (*CreditBalanceResponse) Descriptor() ([]byte, []int) {
+	return file_airbar_finance_v1_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *CreditBalanceResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *CreditBalanceResponse) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
+func (x *CreditBalanceResponse) GetBalance() string {
+	if x != nil {
+		return x.Balance
+	}
+	return ""
+}
+
+func (x *CreditBalanceResponse) GetAccountCode() string {
+	if x != nil {
+		return x.AccountCode
+	}
+	return ""
+}
+
+type ListCreditGrantsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCreditGrantsRequest) Reset() {
+	*x = ListCreditGrantsRequest{}
+	mi := &file_airbar_finance_v1_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCreditGrantsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCreditGrantsRequest) ProtoMessage() {}
+
+func (x *ListCreditGrantsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_airbar_finance_v1_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCreditGrantsRequest.ProtoReflect.Descriptor instead.
+func (*ListCreditGrantsRequest) Descriptor() ([]byte, []int) {
+	return file_airbar_finance_v1_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *ListCreditGrantsRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *ListCreditGrantsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListCreditGrantsRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+type CreditGrantResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Amount        string                 `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	Reason        string                 `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
+	CampaignRef   string                 `protobuf:"bytes,5,opt,name=campaign_ref,json=campaignRef,proto3" json:"campaign_ref,omitempty"`
+	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	GrantedBy     string                 `protobuf:"bytes,7,opt,name=granted_by,json=grantedBy,proto3" json:"granted_by,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	ReversedAt    *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=reversed_at,json=reversedAt,proto3" json:"reversed_at,omitempty"`
+	ReverseReason string                 `protobuf:"bytes,11,opt,name=reverse_reason,json=reverseReason,proto3" json:"reverse_reason,omitempty"`
+	ReversedBy    string                 `protobuf:"bytes,12,opt,name=reversed_by,json=reversedBy,proto3" json:"reversed_by,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreditGrantResponse) Reset() {
+	*x = CreditGrantResponse{}
+	mi := &file_airbar_finance_v1_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreditGrantResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreditGrantResponse) ProtoMessage() {}
+
+func (x *CreditGrantResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_airbar_finance_v1_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreditGrantResponse.ProtoReflect.Descriptor instead.
+func (*CreditGrantResponse) Descriptor() ([]byte, []int) {
+	return file_airbar_finance_v1_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *CreditGrantResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CreditGrantResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *CreditGrantResponse) GetAmount() string {
+	if x != nil {
+		return x.Amount
+	}
+	return ""
+}
+
+func (x *CreditGrantResponse) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *CreditGrantResponse) GetCampaignRef() string {
+	if x != nil {
+		return x.CampaignRef
+	}
+	return ""
+}
+
+func (x *CreditGrantResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *CreditGrantResponse) GetGrantedBy() string {
+	if x != nil {
+		return x.GrantedBy
+	}
+	return ""
+}
+
+func (x *CreditGrantResponse) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
+	}
+	return nil
+}
+
+func (x *CreditGrantResponse) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *CreditGrantResponse) GetReversedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ReversedAt
+	}
+	return nil
+}
+
+func (x *CreditGrantResponse) GetReverseReason() string {
+	if x != nil {
+		return x.ReverseReason
+	}
+	return ""
+}
+
+func (x *CreditGrantResponse) GetReversedBy() string {
+	if x != nil {
+		return x.ReversedBy
+	}
+	return ""
+}
+
+type CreditGrantsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*CreditGrantResponse `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	Balance       string                 `protobuf:"bytes,2,opt,name=balance,proto3" json:"balance,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreditGrantsResponse) Reset() {
+	*x = CreditGrantsResponse{}
+	mi := &file_airbar_finance_v1_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreditGrantsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreditGrantsResponse) ProtoMessage() {}
+
+func (x *CreditGrantsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_airbar_finance_v1_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreditGrantsResponse.ProtoReflect.Descriptor instead.
+func (*CreditGrantsResponse) Descriptor() ([]byte, []int) {
+	return file_airbar_finance_v1_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *CreditGrantsResponse) GetItems() []*CreditGrantResponse {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+func (x *CreditGrantsResponse) GetBalance() string {
+	if x != nil {
+		return x.Balance
+	}
+	return ""
+}
+
 var File_airbar_finance_v1_proto protoreflect.FileDescriptor
 
 var file_airbar_finance_v1_proto_rawDesc = string([]byte{
@@ -3207,7 +3723,90 @@ var file_airbar_finance_v1_proto_rawDesc = string([]byte{
 	0x61, 0x6e, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72,
 	0x45, 0x76, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52, 0x05, 0x69,
 	0x74, 0x65, 0x6d, 0x73, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x03, 0x52, 0x05, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x32, 0x73, 0x0a, 0x14, 0x46, 0x69,
+	0x01, 0x28, 0x03, 0x52, 0x05, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x22, 0x97, 0x02, 0x0a, 0x12, 0x47,
+	0x72, 0x61, 0x6e, 0x74, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x12, 0x3b, 0x0a, 0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x78, 0x74, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x21, 0x2e, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2e, 0x66, 0x69, 0x6e, 0x61,
+	0x6e, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x43, 0x6f,
+	0x6e, 0x74, 0x65, 0x78, 0x74, 0x52, 0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x78, 0x74, 0x12, 0x17,
+	0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x16, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e,
+	0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12,
+	0x16, 0x0a, 0x06, 0x72, 0x65, 0x61, 0x73, 0x6f, 0x6e, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x06, 0x72, 0x65, 0x61, 0x73, 0x6f, 0x6e, 0x12, 0x21, 0x0a, 0x0c, 0x63, 0x61, 0x6d, 0x70, 0x61,
+	0x69, 0x67, 0x6e, 0x5f, 0x72, 0x65, 0x66, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x63,
+	0x61, 0x6d, 0x70, 0x61, 0x69, 0x67, 0x6e, 0x52, 0x65, 0x66, 0x12, 0x39, 0x0a, 0x0a, 0x65, 0x78,
+	0x70, 0x69, 0x72, 0x65, 0x73, 0x5f, 0x61, 0x74, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a,
+	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
+	0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x09, 0x65, 0x78, 0x70, 0x69,
+	0x72, 0x65, 0x73, 0x41, 0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x64,
+	0x5f, 0x62, 0x79, 0x18, 0x07, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x67, 0x72, 0x61, 0x6e, 0x74,
+	0x65, 0x64, 0x42, 0x79, 0x22, 0xbb, 0x01, 0x0a, 0x19, 0x52, 0x65, 0x76, 0x65, 0x72, 0x73, 0x65,
+	0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x47, 0x72, 0x61, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x3b, 0x0a, 0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x78, 0x74, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x21, 0x2e, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2e, 0x66, 0x69, 0x6e,
+	0x61, 0x6e, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x43,
+	0x6f, 0x6e, 0x74, 0x65, 0x78, 0x74, 0x52, 0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x78, 0x74, 0x12,
+	0x19, 0x0a, 0x08, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x07, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x49, 0x64, 0x12, 0x25, 0x0a, 0x0e, 0x72, 0x65,
+	0x76, 0x65, 0x72, 0x73, 0x65, 0x5f, 0x72, 0x65, 0x61, 0x73, 0x6f, 0x6e, 0x18, 0x03, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x0d, 0x72, 0x65, 0x76, 0x65, 0x72, 0x73, 0x65, 0x52, 0x65, 0x61, 0x73, 0x6f,
+	0x6e, 0x12, 0x1f, 0x0a, 0x0b, 0x72, 0x65, 0x76, 0x65, 0x72, 0x73, 0x65, 0x64, 0x5f, 0x62, 0x79,
+	0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x72, 0x65, 0x76, 0x65, 0x72, 0x73, 0x65, 0x64,
+	0x42, 0x79, 0x22, 0x32, 0x0a, 0x17, 0x47, 0x65, 0x74, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x42,
+	0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x17, 0x0a,
+	0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06,
+	0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x22, 0x89, 0x01, 0x0a, 0x15, 0x43, 0x72, 0x65, 0x64, 0x69,
+	0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x63, 0x75, 0x72,
+	0x72, 0x65, 0x6e, 0x63, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x63, 0x75, 0x72,
+	0x72, 0x65, 0x6e, 0x63, 0x79, 0x12, 0x18, 0x0a, 0x07, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x12,
+	0x21, 0x0a, 0x0c, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x5f, 0x63, 0x6f, 0x64, 0x65, 0x18,
+	0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x43, 0x6f,
+	0x64, 0x65, 0x22, 0x60, 0x0a, 0x17, 0x4c, 0x69, 0x73, 0x74, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74,
+	0x47, 0x72, 0x61, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x17, 0x0a,
+	0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06,
+	0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x14, 0x0a, 0x05, 0x6c, 0x69, 0x6d, 0x69, 0x74, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x6c, 0x69, 0x6d, 0x69, 0x74, 0x12, 0x16, 0x0a, 0x06,
+	0x6f, 0x66, 0x66, 0x73, 0x65, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x6f, 0x66,
+	0x66, 0x73, 0x65, 0x74, 0x22, 0xc3, 0x03, 0x0a, 0x13, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x47,
+	0x72, 0x61, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x0e, 0x0a, 0x02,
+	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x17, 0x0a, 0x07,
+	0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x75,
+	0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x16, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x16, 0x0a,
+	0x06, 0x72, 0x65, 0x61, 0x73, 0x6f, 0x6e, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x72,
+	0x65, 0x61, 0x73, 0x6f, 0x6e, 0x12, 0x21, 0x0a, 0x0c, 0x63, 0x61, 0x6d, 0x70, 0x61, 0x69, 0x67,
+	0x6e, 0x5f, 0x72, 0x65, 0x66, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x63, 0x61, 0x6d,
+	0x70, 0x61, 0x69, 0x67, 0x6e, 0x52, 0x65, 0x66, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74,
+	0x75, 0x73, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73,
+	0x12, 0x1d, 0x0a, 0x0a, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x64, 0x5f, 0x62, 0x79, 0x18, 0x07,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x64, 0x42, 0x79, 0x12,
+	0x39, 0x0a, 0x0a, 0x65, 0x78, 0x70, 0x69, 0x72, 0x65, 0x73, 0x5f, 0x61, 0x74, 0x18, 0x08, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52,
+	0x09, 0x65, 0x78, 0x70, 0x69, 0x72, 0x65, 0x73, 0x41, 0x74, 0x12, 0x39, 0x0a, 0x0a, 0x63, 0x72,
+	0x65, 0x61, 0x74, 0x65, 0x64, 0x5f, 0x61, 0x74, 0x18, 0x09, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a,
+	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
+	0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x09, 0x63, 0x72, 0x65, 0x61,
+	0x74, 0x65, 0x64, 0x41, 0x74, 0x12, 0x3b, 0x0a, 0x0b, 0x72, 0x65, 0x76, 0x65, 0x72, 0x73, 0x65,
+	0x64, 0x5f, 0x61, 0x74, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f,
+	0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d,
+	0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x0a, 0x72, 0x65, 0x76, 0x65, 0x72, 0x73, 0x65, 0x64,
+	0x41, 0x74, 0x12, 0x25, 0x0a, 0x0e, 0x72, 0x65, 0x76, 0x65, 0x72, 0x73, 0x65, 0x5f, 0x72, 0x65,
+	0x61, 0x73, 0x6f, 0x6e, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0d, 0x72, 0x65, 0x76, 0x65,
+	0x72, 0x73, 0x65, 0x52, 0x65, 0x61, 0x73, 0x6f, 0x6e, 0x12, 0x1f, 0x0a, 0x0b, 0x72, 0x65, 0x76,
+	0x65, 0x72, 0x73, 0x65, 0x64, 0x5f, 0x62, 0x79, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a,
+	0x72, 0x65, 0x76, 0x65, 0x72, 0x73, 0x65, 0x64, 0x42, 0x79, 0x22, 0x6e, 0x0a, 0x14, 0x43, 0x72,
+	0x65, 0x64, 0x69, 0x74, 0x47, 0x72, 0x61, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x3c, 0x0a, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28,
+	0x0b, 0x32, 0x26, 0x2e, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2e, 0x66, 0x69, 0x6e, 0x61, 0x6e,
+	0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x47, 0x72, 0x61, 0x6e,
+	0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73,
+	0x12, 0x18, 0x0a, 0x07, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x07, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x32, 0x73, 0x0a, 0x14, 0x46, 0x69,
 	0x6e, 0x61, 0x6e, 0x63, 0x65, 0x48, 0x65, 0x61, 0x6c, 0x74, 0x68, 0x53, 0x65, 0x72, 0x76, 0x69,
 	0x63, 0x65, 0x12, 0x5b, 0x0a, 0x0a, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x52, 0x65, 0x61, 0x64, 0x79,
 	0x12, 0x25, 0x2e, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2e, 0x66, 0x69, 0x6e, 0x61, 0x6e, 0x63,
@@ -3410,12 +4009,39 @@ var file_airbar_finance_v1_proto_rawDesc = string([]byte{
 	0x65, 0x72, 0x45, 0x76, 0x65, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
 	0x29, 0x2e, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2e, 0x66, 0x69, 0x6e, 0x61, 0x6e, 0x63, 0x65,
 	0x2e, 0x76, 0x31, 0x2e, 0x50, 0x72, 0x6f, 0x76, 0x69, 0x64, 0x65, 0x72, 0x45, 0x76, 0x65, 0x6e,
-	0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x45, 0x5a, 0x43, 0x67, 0x69,
-	0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6d, 0x61, 0x6d, 0x61, 0x68, 0x6f, 0x6f,
-	0x73, 0x2f, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2d, 0x66, 0x69, 0x6e, 0x61, 0x6e, 0x63, 0x65,
-	0x2f, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x66, 0x69,
-	0x6e, 0x61, 0x6e, 0x63, 0x65, 0x76, 0x31, 0x3b, 0x66, 0x69, 0x6e, 0x61, 0x6e, 0x63, 0x65, 0x76,
-	0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xac, 0x03, 0x0a, 0x0d, 0x43,
+	0x72, 0x65, 0x64, 0x69, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x5c, 0x0a, 0x0b,
+	0x47, 0x72, 0x61, 0x6e, 0x74, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x12, 0x25, 0x2e, 0x61, 0x69,
+	0x72, 0x62, 0x61, 0x72, 0x2e, 0x66, 0x69, 0x6e, 0x61, 0x6e, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e,
+	0x47, 0x72, 0x61, 0x6e, 0x74, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x26, 0x2e, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2e, 0x66, 0x69, 0x6e, 0x61,
+	0x6e, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x47, 0x72, 0x61,
+	0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x6a, 0x0a, 0x12, 0x52, 0x65,
+	0x76, 0x65, 0x72, 0x73, 0x65, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x47, 0x72, 0x61, 0x6e, 0x74,
+	0x12, 0x2c, 0x2e, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2e, 0x66, 0x69, 0x6e, 0x61, 0x6e, 0x63,
+	0x65, 0x2e, 0x76, 0x31, 0x2e, 0x52, 0x65, 0x76, 0x65, 0x72, 0x73, 0x65, 0x43, 0x72, 0x65, 0x64,
+	0x69, 0x74, 0x47, 0x72, 0x61, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x26,
+	0x2e, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2e, 0x66, 0x69, 0x6e, 0x61, 0x6e, 0x63, 0x65, 0x2e,
+	0x76, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x47, 0x72, 0x61, 0x6e, 0x74, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x68, 0x0a, 0x10, 0x47, 0x65, 0x74, 0x43, 0x72, 0x65,
+	0x64, 0x69, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x12, 0x2a, 0x2e, 0x61, 0x69, 0x72,
+	0x62, 0x61, 0x72, 0x2e, 0x66, 0x69, 0x6e, 0x61, 0x6e, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x47,
+	0x65, 0x74, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x28, 0x2e, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2e,
+	0x66, 0x69, 0x6e, 0x61, 0x6e, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x64, 0x69,
+	0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x67, 0x0a, 0x10, 0x4c, 0x69, 0x73, 0x74, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x47, 0x72,
+	0x61, 0x6e, 0x74, 0x73, 0x12, 0x2a, 0x2e, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2e, 0x66, 0x69,
+	0x6e, 0x61, 0x6e, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x43, 0x72, 0x65,
+	0x64, 0x69, 0x74, 0x47, 0x72, 0x61, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x27, 0x2e, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2e, 0x66, 0x69, 0x6e, 0x61, 0x6e, 0x63,
+	0x65, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x47, 0x72, 0x61, 0x6e, 0x74,
+	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x45, 0x5a, 0x43, 0x67, 0x69, 0x74,
+	0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6d, 0x61, 0x6d, 0x61, 0x68, 0x6f, 0x6f, 0x73,
+	0x2f, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2d, 0x66, 0x69, 0x6e, 0x61, 0x6e, 0x63, 0x65, 0x2f,
+	0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x66, 0x69, 0x6e,
+	0x61, 0x6e, 0x63, 0x65, 0x76, 0x31, 0x3b, 0x66, 0x69, 0x6e, 0x61, 0x6e, 0x63, 0x65, 0x76, 0x31,
+	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 })
 
 var (
@@ -3430,7 +4056,7 @@ func file_airbar_finance_v1_proto_rawDescGZIP() []byte {
 	return file_airbar_finance_v1_proto_rawDescData
 }
 
-var file_airbar_finance_v1_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
+var file_airbar_finance_v1_proto_msgTypes = make([]protoimpl.MessageInfo, 50)
 var file_airbar_finance_v1_proto_goTypes = []any{
 	(*RequestContext)(nil),                // 0: airbar.finance.v1.RequestContext
 	(*HealthCheckRequest)(nil),            // 1: airbar.finance.v1.HealthCheckRequest
@@ -3475,8 +4101,15 @@ var file_airbar_finance_v1_proto_goTypes = []any{
 	(*ListProviderEventsRequest)(nil),     // 40: airbar.finance.v1.ListProviderEventsRequest
 	(*ProviderEventResponse)(nil),         // 41: airbar.finance.v1.ProviderEventResponse
 	(*ProviderEventsResponse)(nil),        // 42: airbar.finance.v1.ProviderEventsResponse
-	(*timestamppb.Timestamp)(nil),         // 43: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),               // 44: google.protobuf.Struct
+	(*GrantCreditRequest)(nil),            // 43: airbar.finance.v1.GrantCreditRequest
+	(*ReverseCreditGrantRequest)(nil),     // 44: airbar.finance.v1.ReverseCreditGrantRequest
+	(*GetCreditBalanceRequest)(nil),       // 45: airbar.finance.v1.GetCreditBalanceRequest
+	(*CreditBalanceResponse)(nil),         // 46: airbar.finance.v1.CreditBalanceResponse
+	(*ListCreditGrantsRequest)(nil),       // 47: airbar.finance.v1.ListCreditGrantsRequest
+	(*CreditGrantResponse)(nil),           // 48: airbar.finance.v1.CreditGrantResponse
+	(*CreditGrantsResponse)(nil),          // 49: airbar.finance.v1.CreditGrantsResponse
+	(*timestamppb.Timestamp)(nil),         // 50: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),               // 51: google.protobuf.Struct
 }
 var file_airbar_finance_v1_proto_depIdxs = []int32{
 	0,  // 0: airbar.finance.v1.CreateEscrowRequest.context:type_name -> airbar.finance.v1.RequestContext
@@ -3487,17 +4120,17 @@ var file_airbar_finance_v1_proto_depIdxs = []int32{
 	0,  // 5: airbar.finance.v1.ReleaseEscrowRequest.context:type_name -> airbar.finance.v1.RequestContext
 	0,  // 6: airbar.finance.v1.RefundEscrowRequest.context:type_name -> airbar.finance.v1.RequestContext
 	0,  // 7: airbar.finance.v1.PartialRefundEscrowRequest.context:type_name -> airbar.finance.v1.RequestContext
-	43, // 8: airbar.finance.v1.EscrowResponse.funded_at:type_name -> google.protobuf.Timestamp
-	43, // 9: airbar.finance.v1.EscrowResponse.released_at:type_name -> google.protobuf.Timestamp
-	43, // 10: airbar.finance.v1.EscrowResponse.refunded_at:type_name -> google.protobuf.Timestamp
-	43, // 11: airbar.finance.v1.EscrowResponse.created_at:type_name -> google.protobuf.Timestamp
-	43, // 12: airbar.finance.v1.EscrowResponse.updated_at:type_name -> google.protobuf.Timestamp
+	50, // 8: airbar.finance.v1.EscrowResponse.funded_at:type_name -> google.protobuf.Timestamp
+	50, // 9: airbar.finance.v1.EscrowResponse.released_at:type_name -> google.protobuf.Timestamp
+	50, // 10: airbar.finance.v1.EscrowResponse.refunded_at:type_name -> google.protobuf.Timestamp
+	50, // 11: airbar.finance.v1.EscrowResponse.created_at:type_name -> google.protobuf.Timestamp
+	50, // 12: airbar.finance.v1.EscrowResponse.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 13: airbar.finance.v1.CreatePaymentOrderRequest.context:type_name -> airbar.finance.v1.RequestContext
 	0,  // 14: airbar.finance.v1.VerifyPaymentOrderRequest.context:type_name -> airbar.finance.v1.RequestContext
 	0,  // 15: airbar.finance.v1.CreateWalletTopupRequest.context:type_name -> airbar.finance.v1.RequestContext
-	43, // 16: airbar.finance.v1.PaymentOrderResponse.verified_at:type_name -> google.protobuf.Timestamp
-	43, // 17: airbar.finance.v1.PaymentOrderResponse.created_at:type_name -> google.protobuf.Timestamp
-	43, // 18: airbar.finance.v1.WalletTransactionItem.created_at:type_name -> google.protobuf.Timestamp
+	50, // 16: airbar.finance.v1.PaymentOrderResponse.verified_at:type_name -> google.protobuf.Timestamp
+	50, // 17: airbar.finance.v1.PaymentOrderResponse.created_at:type_name -> google.protobuf.Timestamp
+	50, // 18: airbar.finance.v1.WalletTransactionItem.created_at:type_name -> google.protobuf.Timestamp
 	21, // 19: airbar.finance.v1.WalletTransactionsResponse.items:type_name -> airbar.finance.v1.WalletTransactionItem
 	0,  // 20: airbar.finance.v1.CreateWithdrawalRequest.context:type_name -> airbar.finance.v1.RequestContext
 	0,  // 21: airbar.finance.v1.ApproveWithdrawalRequest.context:type_name -> airbar.finance.v1.RequestContext
@@ -3506,81 +4139,96 @@ var file_airbar_finance_v1_proto_depIdxs = []int32{
 	0,  // 24: airbar.finance.v1.FailWithdrawalRequest.context:type_name -> airbar.finance.v1.RequestContext
 	0,  // 25: airbar.finance.v1.ProcessWithdrawalRequest.context:type_name -> airbar.finance.v1.RequestContext
 	0,  // 26: airbar.finance.v1.RejectWithdrawalRequest.context:type_name -> airbar.finance.v1.RequestContext
-	43, // 27: airbar.finance.v1.WithdrawalResponse.processed_at:type_name -> google.protobuf.Timestamp
-	43, // 28: airbar.finance.v1.WithdrawalResponse.created_at:type_name -> google.protobuf.Timestamp
+	50, // 27: airbar.finance.v1.WithdrawalResponse.processed_at:type_name -> google.protobuf.Timestamp
+	50, // 28: airbar.finance.v1.WithdrawalResponse.created_at:type_name -> google.protobuf.Timestamp
 	31, // 29: airbar.finance.v1.WithdrawalsResponse.items:type_name -> airbar.finance.v1.WithdrawalResponse
-	44, // 30: airbar.finance.v1.TreasurySummaryResponse.accounts:type_name -> google.protobuf.Struct
-	44, // 31: airbar.finance.v1.ReconciliationRunResponse.findings:type_name -> google.protobuf.Struct
-	43, // 32: airbar.finance.v1.ReconciliationRunResponse.started_at:type_name -> google.protobuf.Timestamp
-	43, // 33: airbar.finance.v1.ReconciliationRunResponse.completed_at:type_name -> google.protobuf.Timestamp
+	51, // 30: airbar.finance.v1.TreasurySummaryResponse.accounts:type_name -> google.protobuf.Struct
+	51, // 31: airbar.finance.v1.ReconciliationRunResponse.findings:type_name -> google.protobuf.Struct
+	50, // 32: airbar.finance.v1.ReconciliationRunResponse.started_at:type_name -> google.protobuf.Timestamp
+	50, // 33: airbar.finance.v1.ReconciliationRunResponse.completed_at:type_name -> google.protobuf.Timestamp
 	38, // 34: airbar.finance.v1.ReconciliationRunsResponse.items:type_name -> airbar.finance.v1.ReconciliationRunResponse
-	43, // 35: airbar.finance.v1.ProviderEventResponse.created_at:type_name -> google.protobuf.Timestamp
+	50, // 35: airbar.finance.v1.ProviderEventResponse.created_at:type_name -> google.protobuf.Timestamp
 	41, // 36: airbar.finance.v1.ProviderEventsResponse.items:type_name -> airbar.finance.v1.ProviderEventResponse
-	1,  // 37: airbar.finance.v1.FinanceHealthService.CheckReady:input_type -> airbar.finance.v1.HealthCheckRequest
-	3,  // 38: airbar.finance.v1.EscrowService.CreateEscrow:input_type -> airbar.finance.v1.CreateEscrowRequest
-	4,  // 39: airbar.finance.v1.EscrowService.GetEscrow:input_type -> airbar.finance.v1.GetEscrowRequest
-	5,  // 40: airbar.finance.v1.EscrowService.FundEscrow:input_type -> airbar.finance.v1.FundEscrowRequest
-	6,  // 41: airbar.finance.v1.EscrowService.PayFromWallet:input_type -> airbar.finance.v1.PayFromWalletRequest
-	7,  // 42: airbar.finance.v1.EscrowService.MarkDelivered:input_type -> airbar.finance.v1.MarkDeliveredRequest
-	8,  // 43: airbar.finance.v1.EscrowService.FreezeEscrow:input_type -> airbar.finance.v1.FreezeEscrowRequest
-	9,  // 44: airbar.finance.v1.EscrowService.ReleaseEscrow:input_type -> airbar.finance.v1.ReleaseEscrowRequest
-	10, // 45: airbar.finance.v1.EscrowService.RefundEscrow:input_type -> airbar.finance.v1.RefundEscrowRequest
-	11, // 46: airbar.finance.v1.EscrowService.PartialRefundEscrow:input_type -> airbar.finance.v1.PartialRefundEscrowRequest
-	13, // 47: airbar.finance.v1.PaymentOrderService.CreatePaymentOrder:input_type -> airbar.finance.v1.CreatePaymentOrderRequest
-	14, // 48: airbar.finance.v1.PaymentOrderService.GetPaymentOrder:input_type -> airbar.finance.v1.GetPaymentOrderRequest
-	15, // 49: airbar.finance.v1.PaymentOrderService.VerifyPaymentOrder:input_type -> airbar.finance.v1.VerifyPaymentOrderRequest
-	16, // 50: airbar.finance.v1.PaymentOrderService.CreateWalletTopupOrder:input_type -> airbar.finance.v1.CreateWalletTopupRequest
-	15, // 51: airbar.finance.v1.PaymentOrderService.VerifyWalletTopupOrder:input_type -> airbar.finance.v1.VerifyPaymentOrderRequest
-	18, // 52: airbar.finance.v1.WalletService.GetWallet:input_type -> airbar.finance.v1.GetWalletRequest
-	20, // 53: airbar.finance.v1.WalletService.ListWalletTransactions:input_type -> airbar.finance.v1.ListWalletTransactionsRequest
-	23, // 54: airbar.finance.v1.WithdrawalService.CreateWithdrawal:input_type -> airbar.finance.v1.CreateWithdrawalRequest
-	24, // 55: airbar.finance.v1.WithdrawalService.ListWithdrawals:input_type -> airbar.finance.v1.ListWithdrawalsRequest
-	25, // 56: airbar.finance.v1.WithdrawalService.ApproveWithdrawal:input_type -> airbar.finance.v1.ApproveWithdrawalRequest
-	26, // 57: airbar.finance.v1.WithdrawalService.MarkWithdrawalSent:input_type -> airbar.finance.v1.MarkWithdrawalSentRequest
-	27, // 58: airbar.finance.v1.WithdrawalService.SettleWithdrawal:input_type -> airbar.finance.v1.SettleWithdrawalRequest
-	28, // 59: airbar.finance.v1.WithdrawalService.FailWithdrawal:input_type -> airbar.finance.v1.FailWithdrawalRequest
-	29, // 60: airbar.finance.v1.WithdrawalService.ProcessWithdrawal:input_type -> airbar.finance.v1.ProcessWithdrawalRequest
-	30, // 61: airbar.finance.v1.WithdrawalService.RejectWithdrawal:input_type -> airbar.finance.v1.RejectWithdrawalRequest
-	33, // 62: airbar.finance.v1.TreasuryService.GetTreasurySummary:input_type -> airbar.finance.v1.GetTreasuryRequest
-	35, // 63: airbar.finance.v1.ReconciliationService.RunReconciliation:input_type -> airbar.finance.v1.RunReconciliationRequest
-	36, // 64: airbar.finance.v1.ReconciliationService.ListReconciliationRuns:input_type -> airbar.finance.v1.ListReconciliationRunsRequest
-	37, // 65: airbar.finance.v1.ReconciliationService.GetReconciliationRun:input_type -> airbar.finance.v1.GetReconciliationRunRequest
-	40, // 66: airbar.finance.v1.ProviderEventService.ListProviderEvents:input_type -> airbar.finance.v1.ListProviderEventsRequest
-	2,  // 67: airbar.finance.v1.FinanceHealthService.CheckReady:output_type -> airbar.finance.v1.HealthCheckResponse
-	12, // 68: airbar.finance.v1.EscrowService.CreateEscrow:output_type -> airbar.finance.v1.EscrowResponse
-	12, // 69: airbar.finance.v1.EscrowService.GetEscrow:output_type -> airbar.finance.v1.EscrowResponse
-	12, // 70: airbar.finance.v1.EscrowService.FundEscrow:output_type -> airbar.finance.v1.EscrowResponse
-	12, // 71: airbar.finance.v1.EscrowService.PayFromWallet:output_type -> airbar.finance.v1.EscrowResponse
-	12, // 72: airbar.finance.v1.EscrowService.MarkDelivered:output_type -> airbar.finance.v1.EscrowResponse
-	12, // 73: airbar.finance.v1.EscrowService.FreezeEscrow:output_type -> airbar.finance.v1.EscrowResponse
-	12, // 74: airbar.finance.v1.EscrowService.ReleaseEscrow:output_type -> airbar.finance.v1.EscrowResponse
-	12, // 75: airbar.finance.v1.EscrowService.RefundEscrow:output_type -> airbar.finance.v1.EscrowResponse
-	12, // 76: airbar.finance.v1.EscrowService.PartialRefundEscrow:output_type -> airbar.finance.v1.EscrowResponse
-	17, // 77: airbar.finance.v1.PaymentOrderService.CreatePaymentOrder:output_type -> airbar.finance.v1.PaymentOrderResponse
-	17, // 78: airbar.finance.v1.PaymentOrderService.GetPaymentOrder:output_type -> airbar.finance.v1.PaymentOrderResponse
-	17, // 79: airbar.finance.v1.PaymentOrderService.VerifyPaymentOrder:output_type -> airbar.finance.v1.PaymentOrderResponse
-	17, // 80: airbar.finance.v1.PaymentOrderService.CreateWalletTopupOrder:output_type -> airbar.finance.v1.PaymentOrderResponse
-	17, // 81: airbar.finance.v1.PaymentOrderService.VerifyWalletTopupOrder:output_type -> airbar.finance.v1.PaymentOrderResponse
-	19, // 82: airbar.finance.v1.WalletService.GetWallet:output_type -> airbar.finance.v1.WalletResponse
-	22, // 83: airbar.finance.v1.WalletService.ListWalletTransactions:output_type -> airbar.finance.v1.WalletTransactionsResponse
-	31, // 84: airbar.finance.v1.WithdrawalService.CreateWithdrawal:output_type -> airbar.finance.v1.WithdrawalResponse
-	32, // 85: airbar.finance.v1.WithdrawalService.ListWithdrawals:output_type -> airbar.finance.v1.WithdrawalsResponse
-	31, // 86: airbar.finance.v1.WithdrawalService.ApproveWithdrawal:output_type -> airbar.finance.v1.WithdrawalResponse
-	31, // 87: airbar.finance.v1.WithdrawalService.MarkWithdrawalSent:output_type -> airbar.finance.v1.WithdrawalResponse
-	31, // 88: airbar.finance.v1.WithdrawalService.SettleWithdrawal:output_type -> airbar.finance.v1.WithdrawalResponse
-	31, // 89: airbar.finance.v1.WithdrawalService.FailWithdrawal:output_type -> airbar.finance.v1.WithdrawalResponse
-	31, // 90: airbar.finance.v1.WithdrawalService.ProcessWithdrawal:output_type -> airbar.finance.v1.WithdrawalResponse
-	31, // 91: airbar.finance.v1.WithdrawalService.RejectWithdrawal:output_type -> airbar.finance.v1.WithdrawalResponse
-	34, // 92: airbar.finance.v1.TreasuryService.GetTreasurySummary:output_type -> airbar.finance.v1.TreasurySummaryResponse
-	38, // 93: airbar.finance.v1.ReconciliationService.RunReconciliation:output_type -> airbar.finance.v1.ReconciliationRunResponse
-	39, // 94: airbar.finance.v1.ReconciliationService.ListReconciliationRuns:output_type -> airbar.finance.v1.ReconciliationRunsResponse
-	38, // 95: airbar.finance.v1.ReconciliationService.GetReconciliationRun:output_type -> airbar.finance.v1.ReconciliationRunResponse
-	42, // 96: airbar.finance.v1.ProviderEventService.ListProviderEvents:output_type -> airbar.finance.v1.ProviderEventsResponse
-	67, // [67:97] is the sub-list for method output_type
-	37, // [37:67] is the sub-list for method input_type
-	37, // [37:37] is the sub-list for extension type_name
-	37, // [37:37] is the sub-list for extension extendee
-	0,  // [0:37] is the sub-list for field type_name
+	0,  // 37: airbar.finance.v1.GrantCreditRequest.context:type_name -> airbar.finance.v1.RequestContext
+	50, // 38: airbar.finance.v1.GrantCreditRequest.expires_at:type_name -> google.protobuf.Timestamp
+	0,  // 39: airbar.finance.v1.ReverseCreditGrantRequest.context:type_name -> airbar.finance.v1.RequestContext
+	50, // 40: airbar.finance.v1.CreditGrantResponse.expires_at:type_name -> google.protobuf.Timestamp
+	50, // 41: airbar.finance.v1.CreditGrantResponse.created_at:type_name -> google.protobuf.Timestamp
+	50, // 42: airbar.finance.v1.CreditGrantResponse.reversed_at:type_name -> google.protobuf.Timestamp
+	48, // 43: airbar.finance.v1.CreditGrantsResponse.items:type_name -> airbar.finance.v1.CreditGrantResponse
+	1,  // 44: airbar.finance.v1.FinanceHealthService.CheckReady:input_type -> airbar.finance.v1.HealthCheckRequest
+	3,  // 45: airbar.finance.v1.EscrowService.CreateEscrow:input_type -> airbar.finance.v1.CreateEscrowRequest
+	4,  // 46: airbar.finance.v1.EscrowService.GetEscrow:input_type -> airbar.finance.v1.GetEscrowRequest
+	5,  // 47: airbar.finance.v1.EscrowService.FundEscrow:input_type -> airbar.finance.v1.FundEscrowRequest
+	6,  // 48: airbar.finance.v1.EscrowService.PayFromWallet:input_type -> airbar.finance.v1.PayFromWalletRequest
+	7,  // 49: airbar.finance.v1.EscrowService.MarkDelivered:input_type -> airbar.finance.v1.MarkDeliveredRequest
+	8,  // 50: airbar.finance.v1.EscrowService.FreezeEscrow:input_type -> airbar.finance.v1.FreezeEscrowRequest
+	9,  // 51: airbar.finance.v1.EscrowService.ReleaseEscrow:input_type -> airbar.finance.v1.ReleaseEscrowRequest
+	10, // 52: airbar.finance.v1.EscrowService.RefundEscrow:input_type -> airbar.finance.v1.RefundEscrowRequest
+	11, // 53: airbar.finance.v1.EscrowService.PartialRefundEscrow:input_type -> airbar.finance.v1.PartialRefundEscrowRequest
+	13, // 54: airbar.finance.v1.PaymentOrderService.CreatePaymentOrder:input_type -> airbar.finance.v1.CreatePaymentOrderRequest
+	14, // 55: airbar.finance.v1.PaymentOrderService.GetPaymentOrder:input_type -> airbar.finance.v1.GetPaymentOrderRequest
+	15, // 56: airbar.finance.v1.PaymentOrderService.VerifyPaymentOrder:input_type -> airbar.finance.v1.VerifyPaymentOrderRequest
+	16, // 57: airbar.finance.v1.PaymentOrderService.CreateWalletTopupOrder:input_type -> airbar.finance.v1.CreateWalletTopupRequest
+	15, // 58: airbar.finance.v1.PaymentOrderService.VerifyWalletTopupOrder:input_type -> airbar.finance.v1.VerifyPaymentOrderRequest
+	18, // 59: airbar.finance.v1.WalletService.GetWallet:input_type -> airbar.finance.v1.GetWalletRequest
+	20, // 60: airbar.finance.v1.WalletService.ListWalletTransactions:input_type -> airbar.finance.v1.ListWalletTransactionsRequest
+	23, // 61: airbar.finance.v1.WithdrawalService.CreateWithdrawal:input_type -> airbar.finance.v1.CreateWithdrawalRequest
+	24, // 62: airbar.finance.v1.WithdrawalService.ListWithdrawals:input_type -> airbar.finance.v1.ListWithdrawalsRequest
+	25, // 63: airbar.finance.v1.WithdrawalService.ApproveWithdrawal:input_type -> airbar.finance.v1.ApproveWithdrawalRequest
+	26, // 64: airbar.finance.v1.WithdrawalService.MarkWithdrawalSent:input_type -> airbar.finance.v1.MarkWithdrawalSentRequest
+	27, // 65: airbar.finance.v1.WithdrawalService.SettleWithdrawal:input_type -> airbar.finance.v1.SettleWithdrawalRequest
+	28, // 66: airbar.finance.v1.WithdrawalService.FailWithdrawal:input_type -> airbar.finance.v1.FailWithdrawalRequest
+	29, // 67: airbar.finance.v1.WithdrawalService.ProcessWithdrawal:input_type -> airbar.finance.v1.ProcessWithdrawalRequest
+	30, // 68: airbar.finance.v1.WithdrawalService.RejectWithdrawal:input_type -> airbar.finance.v1.RejectWithdrawalRequest
+	33, // 69: airbar.finance.v1.TreasuryService.GetTreasurySummary:input_type -> airbar.finance.v1.GetTreasuryRequest
+	35, // 70: airbar.finance.v1.ReconciliationService.RunReconciliation:input_type -> airbar.finance.v1.RunReconciliationRequest
+	36, // 71: airbar.finance.v1.ReconciliationService.ListReconciliationRuns:input_type -> airbar.finance.v1.ListReconciliationRunsRequest
+	37, // 72: airbar.finance.v1.ReconciliationService.GetReconciliationRun:input_type -> airbar.finance.v1.GetReconciliationRunRequest
+	40, // 73: airbar.finance.v1.ProviderEventService.ListProviderEvents:input_type -> airbar.finance.v1.ListProviderEventsRequest
+	43, // 74: airbar.finance.v1.CreditService.GrantCredit:input_type -> airbar.finance.v1.GrantCreditRequest
+	44, // 75: airbar.finance.v1.CreditService.ReverseCreditGrant:input_type -> airbar.finance.v1.ReverseCreditGrantRequest
+	45, // 76: airbar.finance.v1.CreditService.GetCreditBalance:input_type -> airbar.finance.v1.GetCreditBalanceRequest
+	47, // 77: airbar.finance.v1.CreditService.ListCreditGrants:input_type -> airbar.finance.v1.ListCreditGrantsRequest
+	2,  // 78: airbar.finance.v1.FinanceHealthService.CheckReady:output_type -> airbar.finance.v1.HealthCheckResponse
+	12, // 79: airbar.finance.v1.EscrowService.CreateEscrow:output_type -> airbar.finance.v1.EscrowResponse
+	12, // 80: airbar.finance.v1.EscrowService.GetEscrow:output_type -> airbar.finance.v1.EscrowResponse
+	12, // 81: airbar.finance.v1.EscrowService.FundEscrow:output_type -> airbar.finance.v1.EscrowResponse
+	12, // 82: airbar.finance.v1.EscrowService.PayFromWallet:output_type -> airbar.finance.v1.EscrowResponse
+	12, // 83: airbar.finance.v1.EscrowService.MarkDelivered:output_type -> airbar.finance.v1.EscrowResponse
+	12, // 84: airbar.finance.v1.EscrowService.FreezeEscrow:output_type -> airbar.finance.v1.EscrowResponse
+	12, // 85: airbar.finance.v1.EscrowService.ReleaseEscrow:output_type -> airbar.finance.v1.EscrowResponse
+	12, // 86: airbar.finance.v1.EscrowService.RefundEscrow:output_type -> airbar.finance.v1.EscrowResponse
+	12, // 87: airbar.finance.v1.EscrowService.PartialRefundEscrow:output_type -> airbar.finance.v1.EscrowResponse
+	17, // 88: airbar.finance.v1.PaymentOrderService.CreatePaymentOrder:output_type -> airbar.finance.v1.PaymentOrderResponse
+	17, // 89: airbar.finance.v1.PaymentOrderService.GetPaymentOrder:output_type -> airbar.finance.v1.PaymentOrderResponse
+	17, // 90: airbar.finance.v1.PaymentOrderService.VerifyPaymentOrder:output_type -> airbar.finance.v1.PaymentOrderResponse
+	17, // 91: airbar.finance.v1.PaymentOrderService.CreateWalletTopupOrder:output_type -> airbar.finance.v1.PaymentOrderResponse
+	17, // 92: airbar.finance.v1.PaymentOrderService.VerifyWalletTopupOrder:output_type -> airbar.finance.v1.PaymentOrderResponse
+	19, // 93: airbar.finance.v1.WalletService.GetWallet:output_type -> airbar.finance.v1.WalletResponse
+	22, // 94: airbar.finance.v1.WalletService.ListWalletTransactions:output_type -> airbar.finance.v1.WalletTransactionsResponse
+	31, // 95: airbar.finance.v1.WithdrawalService.CreateWithdrawal:output_type -> airbar.finance.v1.WithdrawalResponse
+	32, // 96: airbar.finance.v1.WithdrawalService.ListWithdrawals:output_type -> airbar.finance.v1.WithdrawalsResponse
+	31, // 97: airbar.finance.v1.WithdrawalService.ApproveWithdrawal:output_type -> airbar.finance.v1.WithdrawalResponse
+	31, // 98: airbar.finance.v1.WithdrawalService.MarkWithdrawalSent:output_type -> airbar.finance.v1.WithdrawalResponse
+	31, // 99: airbar.finance.v1.WithdrawalService.SettleWithdrawal:output_type -> airbar.finance.v1.WithdrawalResponse
+	31, // 100: airbar.finance.v1.WithdrawalService.FailWithdrawal:output_type -> airbar.finance.v1.WithdrawalResponse
+	31, // 101: airbar.finance.v1.WithdrawalService.ProcessWithdrawal:output_type -> airbar.finance.v1.WithdrawalResponse
+	31, // 102: airbar.finance.v1.WithdrawalService.RejectWithdrawal:output_type -> airbar.finance.v1.WithdrawalResponse
+	34, // 103: airbar.finance.v1.TreasuryService.GetTreasurySummary:output_type -> airbar.finance.v1.TreasurySummaryResponse
+	38, // 104: airbar.finance.v1.ReconciliationService.RunReconciliation:output_type -> airbar.finance.v1.ReconciliationRunResponse
+	39, // 105: airbar.finance.v1.ReconciliationService.ListReconciliationRuns:output_type -> airbar.finance.v1.ReconciliationRunsResponse
+	38, // 106: airbar.finance.v1.ReconciliationService.GetReconciliationRun:output_type -> airbar.finance.v1.ReconciliationRunResponse
+	42, // 107: airbar.finance.v1.ProviderEventService.ListProviderEvents:output_type -> airbar.finance.v1.ProviderEventsResponse
+	48, // 108: airbar.finance.v1.CreditService.GrantCredit:output_type -> airbar.finance.v1.CreditGrantResponse
+	48, // 109: airbar.finance.v1.CreditService.ReverseCreditGrant:output_type -> airbar.finance.v1.CreditGrantResponse
+	46, // 110: airbar.finance.v1.CreditService.GetCreditBalance:output_type -> airbar.finance.v1.CreditBalanceResponse
+	49, // 111: airbar.finance.v1.CreditService.ListCreditGrants:output_type -> airbar.finance.v1.CreditGrantsResponse
+	78, // [78:112] is the sub-list for method output_type
+	44, // [44:78] is the sub-list for method input_type
+	44, // [44:44] is the sub-list for extension type_name
+	44, // [44:44] is the sub-list for extension extendee
+	0,  // [0:44] is the sub-list for field type_name
 }
 
 func init() { file_airbar_finance_v1_proto_init() }
@@ -3594,9 +4242,9 @@ func file_airbar_finance_v1_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_airbar_finance_v1_proto_rawDesc), len(file_airbar_finance_v1_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   43,
+			NumMessages:   50,
 			NumExtensions: 0,
-			NumServices:   8,
+			NumServices:   9,
 		},
 		GoTypes:           file_airbar_finance_v1_proto_goTypes,
 		DependencyIndexes: file_airbar_finance_v1_proto_depIdxs,

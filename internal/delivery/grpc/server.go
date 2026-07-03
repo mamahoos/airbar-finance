@@ -30,6 +30,7 @@ func NewServer(
 	treasuryHandler *handlers.TreasuryHandler,
 	reconciliationHandler *handlers.ReconciliationHandler,
 	providerEventHandler *handlers.ProviderEventHandler,
+	creditHandler *handlers.CreditHandler,
 ) (*Server, error) {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
@@ -60,6 +61,9 @@ func NewServer(
 	}
 	if providerEventHandler != nil {
 		financev1.RegisterProviderEventServiceServer(grpcServer, providerEventHandler)
+	}
+	if creditHandler != nil {
+		financev1.RegisterCreditServiceServer(grpcServer, creditHandler)
 	}
 
 	return &Server{

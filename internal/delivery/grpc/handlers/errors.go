@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	domainescrow "github.com/mamahoos/airbar-finance/internal/domain/escrow"
+	domaincredit "github.com/mamahoos/airbar-finance/internal/domain/credit"
 	domainledger "github.com/mamahoos/airbar-finance/internal/domain/ledger"
 	domainpayment "github.com/mamahoos/airbar-finance/internal/domain/payment"
 	domainwallet "github.com/mamahoos/airbar-finance/internal/domain/wallet"
@@ -80,6 +81,22 @@ func mapWithdrawalError(err error) error {
 		errors.Is(err, domainwithdrawal.ErrInvalidTransition):
 		return status.Error(codes.FailedPrecondition, err.Error())
 	case errors.Is(err, domainledger.ErrDuplicateJournal):
+		return status.Error(codes.AlreadyExists, err.Error())
+	default:
+		return status.Error(codes.Internal, "internal error")
+	}
+}
+
+func mapCreditError(err error) error {
+	switch {
+	case errors.Is(err, domaincredit.ErrNotFound):
+		return status.Error(codes.NotFound, err.Error())
+	case errors.Is(err, domaincredit.ErrInvalidInput):
+		return status.Error(codes.InvalidArgument, err.Error())
+	case errors.Is(err, domaincredit.ErrAlreadyReversed):
+		return status.Error(codes.FailedPrecondition, err.Error())
+	case errors.Is(err, domaincredit.ErrDuplicateGrant),
+		errors.Is(err, domainledger.ErrDuplicateJournal):
 		return status.Error(codes.AlreadyExists, err.Error())
 	default:
 		return status.Error(codes.Internal, "internal error")

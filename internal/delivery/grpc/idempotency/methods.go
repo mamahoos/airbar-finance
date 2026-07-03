@@ -114,6 +114,18 @@ var mutatingMethods = map[string]methodSpec{
 		newResponse:  func() proto.Message { return &financev1.WithdrawalResponse{} },
 		resourceID:   func(req any) string { return req.(*financev1.RejectWithdrawalRequest).GetWithdrawalId() },
 	},
+	"/airbar.finance.v1.CreditService/GrantCredit": {
+		scope:        "credit.grant",
+		resourceType: "user",
+		newResponse:  func() proto.Message { return &financev1.CreditGrantResponse{} },
+		resourceID:   func(req any) string { return req.(*financev1.GrantCreditRequest).GetUserId() },
+	},
+	"/airbar.finance.v1.CreditService/ReverseCreditGrant": {
+		scope:        "credit.reverse",
+		resourceType: "credit_grant",
+		newResponse:  func() proto.Message { return &financev1.CreditGrantResponse{} },
+		resourceID:   func(req any) string { return req.(*financev1.ReverseCreditGrantRequest).GetGrantId() },
+	},
 }
 
 func lookupMethod(fullMethod string) (methodSpec, bool) {

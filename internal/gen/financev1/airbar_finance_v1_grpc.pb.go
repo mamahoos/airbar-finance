@@ -1669,3 +1669,219 @@ var ProviderEventService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "airbar_finance_v1.proto",
 }
+
+const (
+	CreditService_GrantCredit_FullMethodName        = "/airbar.finance.v1.CreditService/GrantCredit"
+	CreditService_ReverseCreditGrant_FullMethodName = "/airbar.finance.v1.CreditService/ReverseCreditGrant"
+	CreditService_GetCreditBalance_FullMethodName   = "/airbar.finance.v1.CreditService/GetCreditBalance"
+	CreditService_ListCreditGrants_FullMethodName   = "/airbar.finance.v1.CreditService/ListCreditGrants"
+)
+
+// CreditServiceClient is the client API for CreditService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type CreditServiceClient interface {
+	GrantCredit(ctx context.Context, in *GrantCreditRequest, opts ...grpc.CallOption) (*CreditGrantResponse, error)
+	ReverseCreditGrant(ctx context.Context, in *ReverseCreditGrantRequest, opts ...grpc.CallOption) (*CreditGrantResponse, error)
+	GetCreditBalance(ctx context.Context, in *GetCreditBalanceRequest, opts ...grpc.CallOption) (*CreditBalanceResponse, error)
+	ListCreditGrants(ctx context.Context, in *ListCreditGrantsRequest, opts ...grpc.CallOption) (*CreditGrantsResponse, error)
+}
+
+type creditServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewCreditServiceClient(cc grpc.ClientConnInterface) CreditServiceClient {
+	return &creditServiceClient{cc}
+}
+
+func (c *creditServiceClient) GrantCredit(ctx context.Context, in *GrantCreditRequest, opts ...grpc.CallOption) (*CreditGrantResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreditGrantResponse)
+	err := c.cc.Invoke(ctx, CreditService_GrantCredit_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creditServiceClient) ReverseCreditGrant(ctx context.Context, in *ReverseCreditGrantRequest, opts ...grpc.CallOption) (*CreditGrantResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreditGrantResponse)
+	err := c.cc.Invoke(ctx, CreditService_ReverseCreditGrant_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creditServiceClient) GetCreditBalance(ctx context.Context, in *GetCreditBalanceRequest, opts ...grpc.CallOption) (*CreditBalanceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreditBalanceResponse)
+	err := c.cc.Invoke(ctx, CreditService_GetCreditBalance_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *creditServiceClient) ListCreditGrants(ctx context.Context, in *ListCreditGrantsRequest, opts ...grpc.CallOption) (*CreditGrantsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreditGrantsResponse)
+	err := c.cc.Invoke(ctx, CreditService_ListCreditGrants_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// CreditServiceServer is the server API for CreditService service.
+// All implementations must embed UnimplementedCreditServiceServer
+// for forward compatibility.
+type CreditServiceServer interface {
+	GrantCredit(context.Context, *GrantCreditRequest) (*CreditGrantResponse, error)
+	ReverseCreditGrant(context.Context, *ReverseCreditGrantRequest) (*CreditGrantResponse, error)
+	GetCreditBalance(context.Context, *GetCreditBalanceRequest) (*CreditBalanceResponse, error)
+	ListCreditGrants(context.Context, *ListCreditGrantsRequest) (*CreditGrantsResponse, error)
+	mustEmbedUnimplementedCreditServiceServer()
+}
+
+// UnimplementedCreditServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedCreditServiceServer struct{}
+
+func (UnimplementedCreditServiceServer) GrantCredit(context.Context, *GrantCreditRequest) (*CreditGrantResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GrantCredit not implemented")
+}
+func (UnimplementedCreditServiceServer) ReverseCreditGrant(context.Context, *ReverseCreditGrantRequest) (*CreditGrantResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReverseCreditGrant not implemented")
+}
+func (UnimplementedCreditServiceServer) GetCreditBalance(context.Context, *GetCreditBalanceRequest) (*CreditBalanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCreditBalance not implemented")
+}
+func (UnimplementedCreditServiceServer) ListCreditGrants(context.Context, *ListCreditGrantsRequest) (*CreditGrantsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListCreditGrants not implemented")
+}
+func (UnimplementedCreditServiceServer) mustEmbedUnimplementedCreditServiceServer() {}
+func (UnimplementedCreditServiceServer) testEmbeddedByValue()                       {}
+
+// UnsafeCreditServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CreditServiceServer will
+// result in compilation errors.
+type UnsafeCreditServiceServer interface {
+	mustEmbedUnimplementedCreditServiceServer()
+}
+
+func RegisterCreditServiceServer(s grpc.ServiceRegistrar, srv CreditServiceServer) {
+	// If the following call pancis, it indicates UnimplementedCreditServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&CreditService_ServiceDesc, srv)
+}
+
+func _CreditService_GrantCredit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GrantCreditRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreditServiceServer).GrantCredit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CreditService_GrantCredit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreditServiceServer).GrantCredit(ctx, req.(*GrantCreditRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CreditService_ReverseCreditGrant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReverseCreditGrantRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreditServiceServer).ReverseCreditGrant(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CreditService_ReverseCreditGrant_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreditServiceServer).ReverseCreditGrant(ctx, req.(*ReverseCreditGrantRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CreditService_GetCreditBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCreditBalanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreditServiceServer).GetCreditBalance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CreditService_GetCreditBalance_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreditServiceServer).GetCreditBalance(ctx, req.(*GetCreditBalanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CreditService_ListCreditGrants_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCreditGrantsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CreditServiceServer).ListCreditGrants(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CreditService_ListCreditGrants_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CreditServiceServer).ListCreditGrants(ctx, req.(*ListCreditGrantsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// CreditService_ServiceDesc is the grpc.ServiceDesc for CreditService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var CreditService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "airbar.finance.v1.CreditService",
+	HandlerType: (*CreditServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GrantCredit",
+			Handler:    _CreditService_GrantCredit_Handler,
+		},
+		{
+			MethodName: "ReverseCreditGrant",
+			Handler:    _CreditService_ReverseCreditGrant_Handler,
+		},
+		{
+			MethodName: "GetCreditBalance",
+			Handler:    _CreditService_GetCreditBalance_Handler,
+		},
+		{
+			MethodName: "ListCreditGrants",
+			Handler:    _CreditService_ListCreditGrants_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "airbar_finance_v1.proto",
+}
