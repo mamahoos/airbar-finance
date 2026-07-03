@@ -38,7 +38,7 @@ type escrowLifecycleHarness struct {
 	getEscrow            *escrowuc.GetEscrow
 	postJournal          *ledgeruc.PostJournal
 	getWalletBalance     *walletuc.GetBalance
-	getCreditBalance     *walletuc.GetBalance
+	getCreditBalance     *credituc.GetBalance
 	ledgerRepo           *LedgerRepository
 }
 
@@ -72,7 +72,7 @@ func newEscrowLifecycleHarness(t *testing.T) *escrowLifecycleHarness {
 	ensureCredit := credituc.NewEnsureCreditAccount(creditRepo)
 	postJournal := ledgeruc.NewPostJournal(ledgerRepo, ensureWallet)
 	getWalletBalance := walletuc.NewGetBalance(ledgerRepo)
-	getCreditBalance := walletuc.NewGetBalance(ledgerRepo)
+	getCreditBalance := credituc.NewGetBalance(ledgerRepo)
 	auditEmitter := audituc.NewEmitter(NewFinanceEventRepository(pool))
 
 	fundEscrow := escrowuc.NewFundEscrow(pool, escrowRepo, postJournal, nil)
