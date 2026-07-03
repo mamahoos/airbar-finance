@@ -31,7 +31,7 @@ func NewFundEscrow(pool *pgxpool.Pool, escrowRepo domainescrow.Repository, postJ
 	return &FundEscrow{pool: pool, escrowRepo: escrowRepo, postJournal: postJournal, audit: audit}
 }
 
-// Execute posts PSP_FUND_ESCROW and transitions escrow to FUNDED.
+// Execute routes PSP payment through the payer wallet and transitions escrow to FUNDED.
 func (uc *FundEscrow) Execute(ctx context.Context, input FundEscrowInput) (*domainescrow.Escrow, error) {
 	if input.ShipmentID == "" || input.PaymentOrderID == "" {
 		return nil, domainescrow.ErrInvalidAmount
@@ -65,12 +65,29 @@ func (uc *FundEscrow) execute(ctx context.Context, input FundEscrowInput) (*doma
 		return nil, domainescrow.ErrInvalidTransition
 	}
 
+	// Direct payment is routed through the payer wallet in two legs so that
+	// the wallet transaction history reflects both the incoming PSP credit and
+	// the outgoing escrow funding. The net wallet balance change is zero, so no
+	// withdrawable cash is created.
 	_, err = uc.postJournal.Execute(ctx, ledgeruc.PostJournalInput{
-		RefType:     domainledger.RefTypePSPFundEscrow,
-		RefID:       fmt.Sprintf("%s:psp-fund:%s", input.ShipmentID, input.PaymentOrderID),
-		Description: "PSP fund escrow",
+		RefType:     domainledger.RefTypePSPToWallet,
+		RefID:       fmt.Sprintf("%s:psp-wallet:%s", input.ShipmentID, input.PaymentOrderID),
+		Description: "PSP credit to payer wallet",
 		Lines: []domainledger.EntryLine{
 			{AccountCode: domainledger.AccountIRPSPClearing, Debit: escrow.Amount, Credit: 0},
+			{AccountCode: domainledger.UserWalletAccount(escrow.PayerUserID), Debit: 0, Credit: escrow.Amount},
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = uc.postJournal.Execute(ctx, ledgeruc.PostJournalInput{
+		RefType:     domainledger.RefTypeWalletToEscrow,
+		RefID:       fmt.Sprintf("%s:wallet-escrow:%s", input.ShipmentID, input.PaymentOrderID),
+		Description: "Fund escrow from payer wallet",
+		Lines: []domainledger.EntryLine{
+			{AccountCode: domainledger.UserWalletAccount(escrow.PayerUserID), Debit: escrow.Amount, Credit: 0},
 			{AccountCode: domainledger.ShipmentEscrowAccount(input.ShipmentID), Debit: 0, Credit: escrow.Amount},
 		},
 	})

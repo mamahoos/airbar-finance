@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 
 	domainescrow "github.com/mamahoos/airbar-finance/internal/domain/escrow"
+	domainledger "github.com/mamahoos/airbar-finance/internal/domain/ledger"
 	domainpayment "github.com/mamahoos/airbar-finance/internal/domain/payment"
 	domainprovider "github.com/mamahoos/airbar-finance/internal/domain/provider"
 	"github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
@@ -121,6 +122,38 @@ func TestPaymentDirectFlowIntegration(t *testing.T) {
 	}
 	if balance != amount {
 		t.Fatalf("escrow balance = %d, want %d", balance, amount)
+	}
+
+	// Direct payment must route through the payer wallet: the wallet history
+	// records both the PSP credit and the escrow debit, netting to zero.
+	getWalletBalance := walletuc.NewGetBalance(ledgerRepo)
+	walletBalance, err := getWalletBalance.Execute(ctx, payerID)
+	if err != nil {
+		t.Fatalf("wallet GetBalance() error = %v", err)
+	}
+	if walletBalance != 0 {
+		t.Fatalf("payer wallet balance = %d, want 0 (net-zero pass-through)", walletBalance)
+	}
+
+	listTx := walletuc.NewListWalletTransactions(ledgerRepo)
+	items, err := listTx.Execute(ctx, payerID, "IRT")
+	if err != nil {
+		t.Fatalf("ListWalletTransactions() error = %v", err)
+	}
+	if len(items) != 2 {
+		t.Fatalf("payer wallet transaction count = %d, want 2", len(items))
+	}
+	var sawPSPToWallet, sawWalletToEscrow bool
+	for _, item := range items {
+		switch item.RefType {
+		case string(domainledger.RefTypePSPToWallet):
+			sawPSPToWallet = true
+		case string(domainledger.RefTypeWalletToEscrow):
+			sawWalletToEscrow = true
+		}
+	}
+	if !sawPSPToWallet || !sawWalletToEscrow {
+		t.Fatalf("wallet history missing legs: psp->wallet=%v wallet->escrow=%v", sawPSPToWallet, sawWalletToEscrow)
 	}
 
 	providerCount, err := providerRepo.CountByPaymentOrderID(ctx, order.ID)

@@ -7,6 +7,7 @@ type RefType string
 
 const (
 	RefTypePSPFundEscrow            RefType = "PSP_FUND_ESCROW"
+	RefTypePSPToWallet              RefType = "PSP_TO_WALLET"
 	RefTypeWalletToEscrow           RefType = "WALLET_TO_ESCROW"
 	RefTypeEscrowRelease            RefType = "ESCROW_RELEASE"
 	RefTypeEscrowRefundWallet       RefType = "ESCROW_REFUND_WALLET"
