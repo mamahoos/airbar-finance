@@ -57,6 +57,10 @@ service ReconciliationService {
   rpc GetReconciliationRun(GetReconciliationRunRequest) returns (ReconciliationRunResponse);
 }
 
+service ProviderEventService {
+  rpc ListProviderEvents(ListProviderEventsRequest) returns (ProviderEventsResponse);
+}
+
 message RequestContext {
   string request_id = 1;
   string idempotency_key = 2;
@@ -283,4 +287,28 @@ message ReconciliationRunResponse {
 
 message ReconciliationRunsResponse {
   repeated ReconciliationRunResponse items = 1;
+}
+
+message ListProviderEventsRequest {
+  string provider = 1;
+  string event_type = 2;
+  string payment_order_id = 3;
+  int32 page = 4;
+  int32 limit = 5;
+}
+
+message ProviderEventResponse {
+  string id = 1;
+  string provider = 2;
+  string event_type = 3;
+  string payment_order_id = 4;
+  string payload_hash = 5;
+  string idempotency_key = 6;
+  bool processed = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+message ProviderEventsResponse {
+  repeated ProviderEventResponse items = 1;
+  int64 total = 2;
 }

@@ -1415,3 +1415,105 @@ var ReconciliationService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "airbar_finance_v1.proto",
 }
+
+const (
+	ProviderEventService_ListProviderEvents_FullMethodName = "/airbar.finance.v1.ProviderEventService/ListProviderEvents"
+)
+
+// ProviderEventServiceClient is the client API for ProviderEventService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ProviderEventServiceClient interface {
+	ListProviderEvents(ctx context.Context, in *ListProviderEventsRequest, opts ...grpc.CallOption) (*ProviderEventsResponse, error)
+}
+
+type providerEventServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewProviderEventServiceClient(cc grpc.ClientConnInterface) ProviderEventServiceClient {
+	return &providerEventServiceClient{cc}
+}
+
+func (c *providerEventServiceClient) ListProviderEvents(ctx context.Context, in *ListProviderEventsRequest, opts ...grpc.CallOption) (*ProviderEventsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ProviderEventsResponse)
+	err := c.cc.Invoke(ctx, ProviderEventService_ListProviderEvents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ProviderEventServiceServer is the server API for ProviderEventService service.
+// All implementations must embed UnimplementedProviderEventServiceServer
+// for forward compatibility.
+type ProviderEventServiceServer interface {
+	ListProviderEvents(context.Context, *ListProviderEventsRequest) (*ProviderEventsResponse, error)
+	mustEmbedUnimplementedProviderEventServiceServer()
+}
+
+// UnimplementedProviderEventServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedProviderEventServiceServer struct{}
+
+func (UnimplementedProviderEventServiceServer) ListProviderEvents(context.Context, *ListProviderEventsRequest) (*ProviderEventsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListProviderEvents not implemented")
+}
+func (UnimplementedProviderEventServiceServer) mustEmbedUnimplementedProviderEventServiceServer() {}
+func (UnimplementedProviderEventServiceServer) testEmbeddedByValue()                              {}
+
+// UnsafeProviderEventServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ProviderEventServiceServer will
+// result in compilation errors.
+type UnsafeProviderEventServiceServer interface {
+	mustEmbedUnimplementedProviderEventServiceServer()
+}
+
+func RegisterProviderEventServiceServer(s grpc.ServiceRegistrar, srv ProviderEventServiceServer) {
+	// If the following call pancis, it indicates UnimplementedProviderEventServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&ProviderEventService_ServiceDesc, srv)
+}
+
+func _ProviderEventService_ListProviderEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListProviderEventsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProviderEventServiceServer).ListProviderEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProviderEventService_ListProviderEvents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProviderEventServiceServer).ListProviderEvents(ctx, req.(*ListProviderEventsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ProviderEventService_ServiceDesc is the grpc.ServiceDesc for ProviderEventService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ProviderEventService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "airbar.finance.v1.ProviderEventService",
+	HandlerType: (*ProviderEventServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListProviderEvents",
+			Handler:    _ProviderEventService_ListProviderEvents_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "airbar_finance_v1.proto",
+}

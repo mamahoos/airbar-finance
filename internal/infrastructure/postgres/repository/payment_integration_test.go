@@ -12,6 +12,7 @@ import (
 
 	domainescrow "github.com/mamahoos/airbar-finance/internal/domain/escrow"
 	domainpayment "github.com/mamahoos/airbar-finance/internal/domain/payment"
+	domainprovider "github.com/mamahoos/airbar-finance/internal/domain/provider"
 	"github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
 	"github.com/mamahoos/airbar-finance/internal/infrastructure/zibal"
 	escrowuc "github.com/mamahoos/airbar-finance/internal/usecase/escrow"
@@ -128,6 +129,21 @@ func TestPaymentDirectFlowIntegration(t *testing.T) {
 	}
 	if providerCount < 2 {
 		t.Fatalf("provider events = %d, want at least REQUEST+VERIFY", providerCount)
+	}
+	providerEvents, total, err := providerRepo.List(ctx, domainprovider.ListFilter{
+		Provider:       domainprovider.ProviderZibal,
+		PaymentOrderID: order.ID,
+		Page:           1,
+		Limit:          10,
+	})
+	if err != nil {
+		t.Fatalf("List provider events error = %v", err)
+	}
+	if total < 2 || len(providerEvents) < 2 {
+		t.Fatalf("provider event list total=%d len=%d, want at least 2", total, len(providerEvents))
+	}
+	if providerEvents[0].PayloadHash == "" || providerEvents[0].IdempotencyKey == "" {
+		t.Fatal("provider event list should include audit metadata")
 	}
 }
 

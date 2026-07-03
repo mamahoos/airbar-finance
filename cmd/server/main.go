@@ -20,15 +20,16 @@ import (
 	"github.com/mamahoos/airbar-finance/internal/infrastructure/postgres/repository"
 	redisinfra "github.com/mamahoos/airbar-finance/internal/infrastructure/redis"
 	"github.com/mamahoos/airbar-finance/internal/infrastructure/zibal"
+	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 	escrowuc "github.com/mamahoos/airbar-finance/internal/usecase/escrow"
+	idempotencyuc "github.com/mamahoos/airbar-finance/internal/usecase/idempotency"
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
 	paymentuc "github.com/mamahoos/airbar-finance/internal/usecase/payment"
+	provideruc "github.com/mamahoos/airbar-finance/internal/usecase/provider"
 	reconuc "github.com/mamahoos/airbar-finance/internal/usecase/reconciliation"
 	treasuryuc "github.com/mamahoos/airbar-finance/internal/usecase/treasury"
 	walletuc "github.com/mamahoos/airbar-finance/internal/usecase/wallet"
 	withdrawaluc "github.com/mamahoos/airbar-finance/internal/usecase/withdrawal"
-	idempotencyuc "github.com/mamahoos/airbar-finance/internal/usecase/idempotency"
-	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
 
 func main() {
@@ -136,6 +137,7 @@ func run(logger *slog.Logger) error {
 	runReconciliation := reconuc.NewRunReconciliation(ledgerRepo, reconciliationRepo)
 	listReconciliationRuns := reconuc.NewListReconciliationRuns(reconciliationRepo)
 	getReconciliationRun := reconuc.NewGetReconciliationRun(reconciliationRepo)
+	listProviderEvents := provideruc.NewListProviderEvents(providerEventRepo)
 
 	withdrawalHandler := handlers.NewWithdrawalHandler(
 		createWithdrawal,
@@ -150,6 +152,7 @@ func run(logger *slog.Logger) error {
 		listReconciliationRuns,
 		getReconciliationRun,
 	)
+	providerEventHandler := handlers.NewProviderEventHandler(listProviderEvents)
 
 	grpcServer, err := deliverygrpc.NewServer(
 		cfg.GRPCPort,
@@ -161,6 +164,7 @@ func run(logger *slog.Logger) error {
 		withdrawalHandler,
 		treasuryHandler,
 		reconciliationHandler,
+		providerEventHandler,
 	)
 	if err != nil {
 		return err
