@@ -17,7 +17,10 @@ env:
 jobs:
   changes:
     name: detect changes
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       go: ${{ steps.filter.outputs.go }}
       ci: ${{ steps.filter.outputs.ci }}
@@ -44,7 +47,7 @@ jobs:
     name: go mod verify
     needs: changes
     if: needs.changes.outputs.go == 'true' || needs.changes.outputs.ci == 'true'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
@@ -60,7 +63,7 @@ jobs:
     name: go vet
     needs: changes
     if: needs.changes.outputs.go == 'true' || needs.changes.outputs.ci == 'true'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
@@ -76,7 +79,7 @@ jobs:
     name: unit tests
     needs: changes
     if: needs.changes.outputs.go == 'true' || needs.changes.outputs.ci == 'true'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
@@ -99,7 +102,7 @@ jobs:
     name: build
     needs: changes
     if: needs.changes.outputs.go == 'true' || needs.changes.outputs.ci == 'true'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
@@ -116,7 +119,7 @@ jobs:
     name: integration tests
     needs: changes
     if: needs.changes.outputs.go == 'true' || needs.changes.outputs.ci == 'true'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 15
     # Literal credentials: ephemeral CI Postgres only (services.*.env cannot use ${{ env.* }}).
     env:
@@ -154,7 +157,7 @@ jobs:
     name: govulncheck
     needs: changes
     if: needs.changes.outputs.go == 'true' || needs.changes.outputs.ci == 'true'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
@@ -173,7 +176,7 @@ jobs:
     name: quality gate
     needs: [mod-verify, vet, unit-test, build, integration, security]
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 2
     steps:
       - name: Require all checks
