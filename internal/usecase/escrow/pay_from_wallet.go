@@ -6,9 +6,9 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	domainescrow "github.com/mamahoos/airbar-finance/internal/domain/escrow"
-	domainledger "github.com/mamahoos/airbar-finance/internal/domain/ledger"
 	pg "github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
+	credituc "github.com/mamahoos/airbar-finance/internal/usecase/credit"
 	walletuc "github.com/mamahoos/airbar-finance/internal/usecase/wallet"
 	audituc "github.com/mamahoos/airbar-finance/internal/usecase/audit"
 )
@@ -20,13 +20,15 @@ type PayFromWalletInput struct {
 	Amount      int64
 }
 
-// PayFromWallet debits payer wallet and funds escrow from WALLET source.
+// PayFromWallet debits payer promo credit first, then wallet, and funds escrow.
 type PayFromWallet struct {
-	pool        *pgxpool.Pool
-	escrowRepo  domainescrow.Repository
-	postJournal *ledgeruc.PostJournal
-	getBalance  *walletuc.GetBalance
-	audit       *audituc.Emitter
+	pool          *pgxpool.Pool
+	escrowRepo    domainescrow.Repository
+	postJournal   *ledgeruc.PostJournal
+	getWallet     *walletuc.GetBalance
+	getPromo      *credituc.GetBalance
+	ensureCredit  *credituc.EnsureCreditAccount
+	audit         *audituc.Emitter
 }
 
 // NewPayFromWallet creates the PayFromWallet use case.
@@ -34,19 +36,23 @@ func NewPayFromWallet(
 	pool *pgxpool.Pool,
 	escrowRepo domainescrow.Repository,
 	postJournal *ledgeruc.PostJournal,
-	getBalance *walletuc.GetBalance,
+	getWallet *walletuc.GetBalance,
+	getPromo *credituc.GetBalance,
+	ensureCredit *credituc.EnsureCreditAccount,
 	audit *audituc.Emitter,
 ) *PayFromWallet {
 	return &PayFromWallet{
-		pool:        pool,
-		escrowRepo:  escrowRepo,
-		postJournal: postJournal,
-		getBalance:  getBalance,
-		audit:       audit,
+		pool:         pool,
+		escrowRepo:   escrowRepo,
+		postJournal:  postJournal,
+		getWallet:    getWallet,
+		getPromo:     getPromo,
+		ensureCredit: ensureCredit,
+		audit:        audit,
 	}
 }
 
-// Execute posts WALLET_TO_ESCROW and transitions escrow to FUNDED.
+// Execute posts promo-first payer funding and transitions escrow to FUNDED.
 func (uc *PayFromWallet) Execute(ctx context.Context, input PayFromWalletInput) (*domainescrow.Escrow, error) {
 	if input.ShipmentID == "" || input.PayerUserID == "" || input.Amount <= 0 {
 		return nil, domainescrow.ErrInvalidAmount
@@ -68,22 +74,30 @@ func (uc *PayFromWallet) Execute(ctx context.Context, input PayFromWalletInput) 
 			return domainescrow.ErrInvalidTransition
 		}
 
-		balance, err := uc.getBalance.Execute(txCtx, input.PayerUserID)
+		promoBalance, err := uc.getPromo.Execute(txCtx, input.PayerUserID)
 		if err != nil {
 			return err
 		}
-		if balance < input.Amount {
-			return domainescrow.ErrInsufficientWallet
+		walletBalance, err := uc.getWallet.Execute(txCtx, input.PayerUserID)
+		if err != nil {
+			return err
+		}
+
+		split, err := ResolvePayerFundingSplit(input.Amount, promoBalance, walletBalance)
+		if err != nil {
+			return err
+		}
+		if split.PromoCredit > 0 {
+			if _, err := uc.ensureCredit.Execute(txCtx, input.PayerUserID); err != nil {
+				return err
+			}
 		}
 
 		_, err = uc.postJournal.Execute(txCtx, ledgeruc.PostJournalInput{
-			RefType:     domainledger.RefTypeWalletToEscrow,
+			RefType:     RefTypeForEscrowPay(split),
 			RefID:       fmt.Sprintf("%s:wallet-pay", input.ShipmentID),
-			Description: "Pay escrow from wallet",
-			Lines: []domainledger.EntryLine{
-				{AccountCode: domainledger.UserWalletAccount(input.PayerUserID), Debit: input.Amount, Credit: 0},
-				{AccountCode: domainledger.ShipmentEscrowAccount(input.ShipmentID), Debit: 0, Credit: input.Amount},
-			},
+			Description: "Pay escrow from promo credit and wallet",
+			Lines:       BuildEscrowPayJournalLines(input.PayerUserID, input.ShipmentID, split),
 		})
 		if err != nil {
 			return err
@@ -91,7 +105,8 @@ func (uc *PayFromWallet) Execute(ctx context.Context, input PayFromWalletInput) 
 
 		now := nowUTC()
 		escrow.Status = domainescrow.StatusFunded
-		escrow.FundingSource = domainescrow.FundingSourceWallet
+		escrow.FundingSource = FundingSourceForSplit(split)
+		escrow.PromoCreditFunded = split.PromoCredit
 		escrow.FundedAt = &now
 		if err := uc.escrowRepo.Update(txCtx, escrow); err != nil {
 			return err

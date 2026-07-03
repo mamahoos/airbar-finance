@@ -33,7 +33,7 @@ func (r *EscrowRepository) Create(ctx context.Context, escrow *domainescrow.Escr
 func (r *EscrowRepository) GetByShipmentID(ctx context.Context, shipmentID string) (*domainescrow.Escrow, error) {
 	row := r.querier(ctx).QueryRow(ctx, `
 		SELECT id, shipment_id, carrier_user_id, payer_user_id, amount, status,
-		       COALESCE(payment_order_id, ''), COALESCE(funding_source, ''),
+		       COALESCE(payment_order_id, ''), COALESCE(funding_source, ''), promo_credit_funded,
 		       funded_at, released_at, refunded_at, created_at, updated_at
 		FROM finance.escrows
 		WHERE shipment_id = $1
@@ -56,13 +56,14 @@ func (r *EscrowRepository) Update(ctx context.Context, escrow *domainescrow.Escr
 		SET status = $2,
 		    payment_order_id = NULLIF($3, ''),
 		    funding_source = NULLIF($4, ''),
-		    funded_at = $5,
-		    released_at = $6,
-		    refunded_at = $7,
+		    promo_credit_funded = $5,
+		    funded_at = $6,
+		    released_at = $7,
+		    refunded_at = $8,
 		    updated_at = now()
 		WHERE id = $1
 	`, escrow.ID, string(escrow.Status), escrow.PaymentOrderID, string(escrow.FundingSource),
-		escrow.FundedAt, escrow.ReleasedAt, escrow.RefundedAt)
+		escrow.PromoCreditFunded, escrow.FundedAt, escrow.ReleasedAt, escrow.RefundedAt)
 	if err != nil {
 		return err
 	}
@@ -131,6 +132,7 @@ func scanEscrow(row rowScanner) (*domainescrow.Escrow, error) {
 		&status,
 		&paymentOrderID,
 		&fundingSource,
+		&escrow.PromoCreditFunded,
 		&fundedAt,
 		&releasedAt,
 		&refundedAt,

@@ -25,6 +25,7 @@ func mapEscrowError(err error) error {
 		return status.Error(codes.InvalidArgument, err.Error())
 	case errors.Is(err, domainescrow.ErrInvalidTransition),
 		errors.Is(err, domainescrow.ErrInsufficientWallet),
+		errors.Is(err, domainescrow.ErrInsufficientPayerFunds),
 		errors.Is(err, domainescrow.ErrNoEscrowBalance),
 		errors.Is(err, domainescrow.ErrRefundExceedsBalance):
 		return status.Error(codes.FailedPrecondition, err.Error())

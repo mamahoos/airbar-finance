@@ -15,6 +15,8 @@ const (
 	RefTypeWithdrawalRejectReversal RefType = "WITHDRAWAL_REJECT_REVERSAL"
 	RefTypePromoCreditGrant         RefType = "PROMO_CREDIT_GRANT"
 	RefTypePromoCreditReverse       RefType = "PROMO_CREDIT_REVERSE"
+	RefTypePromoCreditToEscrow      RefType = "PROMO_CREDIT_TO_ESCROW"
+	RefTypeEscrowRefundPromoCredit  RefType = "ESCROW_REFUND_PROMO_CREDIT"
 )
 
 // EntryLine is input for constructing a journal entry before persistence.

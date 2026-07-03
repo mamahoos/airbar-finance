@@ -13,6 +13,7 @@ import (
 	domainescrow "github.com/mamahoos/airbar-finance/internal/domain/escrow"
 	domainledger "github.com/mamahoos/airbar-finance/internal/domain/ledger"
 	"github.com/mamahoos/airbar-finance/internal/infrastructure/postgres"
+	credituc "github.com/mamahoos/airbar-finance/internal/usecase/credit"
 	escrowuc "github.com/mamahoos/airbar-finance/internal/usecase/escrow"
 	ledgeruc "github.com/mamahoos/airbar-finance/internal/usecase/ledger"
 	walletuc "github.com/mamahoos/airbar-finance/internal/usecase/wallet"
@@ -33,18 +34,21 @@ func TestEscrowWalletFlowIntegration(t *testing.T) {
 
 	ledgerRepo := NewLedgerRepository(pool)
 	walletRepo := NewWalletRepository(pool)
+	creditRepo := NewCreditRepository(pool)
 	escrowRepo := NewEscrowRepository(pool)
 
 	ensureWallet := walletuc.NewEnsureWalletAccount(walletRepo)
+	ensureCredit := credituc.NewEnsureCreditAccount(creditRepo)
 	postJournal := ledgeruc.NewPostJournal(ledgerRepo, ensureWallet)
 	getBalance := walletuc.NewGetBalance(ledgerRepo)
+	getCreditBalance := credituc.NewGetBalance(ledgerRepo)
 
 	createEscrow := escrowuc.NewCreateEscrow(escrowRepo, nil)
-	payFromWallet := escrowuc.NewPayFromWallet(pool, escrowRepo, postJournal, getBalance, nil)
+	payFromWallet := escrowuc.NewPayFromWallet(pool, escrowRepo, postJournal, getBalance, getCreditBalance, ensureCredit, nil)
 	markDelivered := escrowuc.NewMarkDelivered(escrowRepo, nil)
 	releaseEscrow := escrowuc.NewReleaseEscrow(pool, escrowRepo, postJournal, ledgerRepo, 10, nil)
 	freezeEscrow := escrowuc.NewFreezeEscrow(escrowRepo, nil)
-	refundEscrow := escrowuc.NewRefundEscrow(pool, escrowRepo, postJournal, ledgerRepo, nil)
+	refundEscrow := escrowuc.NewRefundEscrow(pool, escrowRepo, postJournal, ledgerRepo, ensureCredit, nil)
 
 	suffix := uuid.NewString()[:8]
 	shipmentID := fmt.Sprintf("sh-%s", suffix)

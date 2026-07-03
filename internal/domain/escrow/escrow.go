@@ -20,23 +20,26 @@ const (
 type FundingSource string
 
 const (
-	FundingSourcePSP    FundingSource = "PSP"
-	FundingSourceWallet FundingSource = "WALLET"
+	FundingSourcePSP         FundingSource = "PSP"
+	FundingSourceWallet      FundingSource = "WALLET"
+	FundingSourcePromoCredit FundingSource = "PROMO_CREDIT"
+	FundingSourceMixed       FundingSource = "MIXED"
 )
 
 // Escrow is the shipment escrow aggregate root.
 type Escrow struct {
-	ID             string
-	ShipmentID     string
-	CarrierUserID  string
-	PayerUserID    string
-	Amount         int64
-	Status         Status
-	PaymentOrderID string
-	FundingSource  FundingSource
-	FundedAt       *time.Time
-	ReleasedAt     *time.Time
-	RefundedAt     *time.Time
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+	ID                string
+	ShipmentID        string
+	CarrierUserID     string
+	PayerUserID       string
+	Amount            int64
+	Status            Status
+	PaymentOrderID    string
+	FundingSource     FundingSource
+	PromoCreditFunded int64
+	FundedAt          *time.Time
+	ReleasedAt        *time.Time
+	RefundedAt        *time.Time
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
 }

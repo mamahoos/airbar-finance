@@ -170,8 +170,9 @@ func toEscrowResponse(escrow *domainescrow.Escrow) *financev1.EscrowResponse {
 		Amount:         escrowuc.FormatAmount(escrow.Amount),
 		Status:         string(escrow.Status),
 		PaymentOrderId: escrow.PaymentOrderID,
-		FundingSource:  string(escrow.FundingSource),
-		CreatedAt:      timestamppb.New(escrow.CreatedAt),
+		FundingSource:     string(escrow.FundingSource),
+		PromoCreditFunded: escrowuc.FormatAmount(escrow.PromoCreditFunded),
+		CreatedAt:         timestamppb.New(escrow.CreatedAt),
 		UpdatedAt:      timestamppb.New(escrow.UpdatedAt),
 	}
 	if escrow.FundedAt != nil {

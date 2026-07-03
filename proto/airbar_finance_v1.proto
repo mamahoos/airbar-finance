@@ -149,6 +149,7 @@ message EscrowResponse {
   google.protobuf.Timestamp refunded_at = 11;
   google.protobuf.Timestamp created_at = 12;
   google.protobuf.Timestamp updated_at = 13;
+  string promo_credit_funded = 14;
 }
 
 message CreatePaymentOrderRequest {

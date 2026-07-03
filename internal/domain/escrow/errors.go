@@ -17,6 +17,8 @@ var (
 	ErrPayerMismatch = errors.New("escrow: payer mismatch")
 	// ErrInsufficientWallet is returned when payer wallet balance is too low.
 	ErrInsufficientWallet = errors.New("escrow: insufficient wallet balance")
+	// ErrInsufficientPayerFunds is returned when promo credit plus wallet cannot cover payment.
+	ErrInsufficientPayerFunds = errors.New("escrow: insufficient payer funds")
 	// ErrNoEscrowBalance is returned when ledger escrow balance is zero.
 	ErrNoEscrowBalance = errors.New("escrow: no funds in escrow account")
 	// ErrRefundExceedsBalance is returned when partial refund exceeds escrow balance.

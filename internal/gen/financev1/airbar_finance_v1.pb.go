@@ -680,22 +680,23 @@ func (x *PartialRefundEscrowRequest) GetRefundAmount() string {
 }
 
 type EscrowResponse struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ShipmentId     string                 `protobuf:"bytes,2,opt,name=shipment_id,json=shipmentId,proto3" json:"shipment_id,omitempty"`
-	CarrierUserId  string                 `protobuf:"bytes,3,opt,name=carrier_user_id,json=carrierUserId,proto3" json:"carrier_user_id,omitempty"`
-	PayerUserId    string                 `protobuf:"bytes,4,opt,name=payer_user_id,json=payerUserId,proto3" json:"payer_user_id,omitempty"`
-	Amount         string                 `protobuf:"bytes,5,opt,name=amount,proto3" json:"amount,omitempty"`
-	Status         string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
-	PaymentOrderId string                 `protobuf:"bytes,7,opt,name=payment_order_id,json=paymentOrderId,proto3" json:"payment_order_id,omitempty"`
-	FundingSource  string                 `protobuf:"bytes,8,opt,name=funding_source,json=fundingSource,proto3" json:"funding_source,omitempty"`
-	FundedAt       *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=funded_at,json=fundedAt,proto3" json:"funded_at,omitempty"`
-	ReleasedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=released_at,json=releasedAt,proto3" json:"released_at,omitempty"`
-	RefundedAt     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=refunded_at,json=refundedAt,proto3" json:"refunded_at,omitempty"`
-	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Id                string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ShipmentId        string                 `protobuf:"bytes,2,opt,name=shipment_id,json=shipmentId,proto3" json:"shipment_id,omitempty"`
+	CarrierUserId     string                 `protobuf:"bytes,3,opt,name=carrier_user_id,json=carrierUserId,proto3" json:"carrier_user_id,omitempty"`
+	PayerUserId       string                 `protobuf:"bytes,4,opt,name=payer_user_id,json=payerUserId,proto3" json:"payer_user_id,omitempty"`
+	Amount            string                 `protobuf:"bytes,5,opt,name=amount,proto3" json:"amount,omitempty"`
+	Status            string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	PaymentOrderId    string                 `protobuf:"bytes,7,opt,name=payment_order_id,json=paymentOrderId,proto3" json:"payment_order_id,omitempty"`
+	FundingSource     string                 `protobuf:"bytes,8,opt,name=funding_source,json=fundingSource,proto3" json:"funding_source,omitempty"`
+	FundedAt          *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=funded_at,json=fundedAt,proto3" json:"funded_at,omitempty"`
+	ReleasedAt        *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=released_at,json=releasedAt,proto3" json:"released_at,omitempty"`
+	RefundedAt        *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=refunded_at,json=refundedAt,proto3" json:"refunded_at,omitempty"`
+	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt         *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	PromoCreditFunded string                 `protobuf:"bytes,14,opt,name=promo_credit_funded,json=promoCreditFunded,proto3" json:"promo_credit_funded,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *EscrowResponse) Reset() {
@@ -817,6 +818,13 @@ func (x *EscrowResponse) GetUpdatedAt() *timestamppb.Timestamp {
 		return x.UpdatedAt
 	}
 	return nil
+}
+
+func (x *EscrowResponse) GetPromoCreditFunded() string {
+	if x != nil {
+		return x.PromoCreditFunded
+	}
+	return ""
 }
 
 type CreatePaymentOrderRequest struct {
@@ -3386,7 +3394,7 @@ var file_airbar_finance_v1_proto_rawDesc = string([]byte{
 	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x73, 0x68, 0x69, 0x70, 0x6d, 0x65, 0x6e, 0x74,
 	0x49, 0x64, 0x12, 0x23, 0x0a, 0x0d, 0x72, 0x65, 0x66, 0x75, 0x6e, 0x64, 0x5f, 0x61, 0x6d, 0x6f,
 	0x75, 0x6e, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x72, 0x65, 0x66, 0x75, 0x6e,
-	0x64, 0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x22, 0xb7, 0x04, 0x0a, 0x0e, 0x45, 0x73, 0x63, 0x72,
+	0x64, 0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x22, 0xe7, 0x04, 0x0a, 0x0e, 0x45, 0x73, 0x63, 0x72,
 	0x6f, 0x77, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64,
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1f, 0x0a, 0x0b, 0x73, 0x68,
 	0x69, 0x70, 0x6d, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
@@ -3422,7 +3430,10 @@ var file_airbar_finance_v1_proto_rawDesc = string([]byte{
 	0x64, 0x5f, 0x61, 0x74, 0x18, 0x0d, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f,
 	0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d,
 	0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41,
-	0x74, 0x22, 0xdf, 0x02, 0x0a, 0x19, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x50, 0x61, 0x79, 0x6d,
+	0x74, 0x12, 0x2e, 0x0a, 0x13, 0x70, 0x72, 0x6f, 0x6d, 0x6f, 0x5f, 0x63, 0x72, 0x65, 0x64, 0x69,
+	0x74, 0x5f, 0x66, 0x75, 0x6e, 0x64, 0x65, 0x64, 0x18, 0x0e, 0x20, 0x01, 0x28, 0x09, 0x52, 0x11,
+	0x70, 0x72, 0x6f, 0x6d, 0x6f, 0x43, 0x72, 0x65, 0x64, 0x69, 0x74, 0x46, 0x75, 0x6e, 0x64, 0x65,
+	0x64, 0x22, 0xdf, 0x02, 0x0a, 0x19, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x50, 0x61, 0x79, 0x6d,
 	0x65, 0x6e, 0x74, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
 	0x3b, 0x0a, 0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x78, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b,
 	0x32, 0x21, 0x2e, 0x61, 0x69, 0x72, 0x62, 0x61, 0x72, 0x2e, 0x66, 0x69, 0x6e, 0x61, 0x6e, 0x63,
