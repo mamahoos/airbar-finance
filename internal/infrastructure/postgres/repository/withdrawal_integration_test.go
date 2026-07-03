@@ -103,14 +103,19 @@ func TestWithdrawalReserveProcessRejectIntegration(t *testing.T) {
 	}
 
 	withdrawal, err = processWithdrawal.Execute(ctx, withdrawaluc.ProcessWithdrawalInput{
-		WithdrawalID: withdrawal.ID,
-		ProviderRef:  "bank-ref-1",
+		WithdrawalID:   withdrawal.ID,
+		ProviderRef:    "bank-ref-1",
+		PayoutChannel:  "PAYA",
+		ReceiptURL:     "https://receipts.example/bank-ref-1",
 	})
 	if err != nil {
 		t.Fatalf("ProcessWithdrawal() error = %v", err)
 	}
 	if withdrawal.Status != domainwithdrawal.StatusCompleted {
 		t.Fatalf("status after process = %q, want COMPLETED", withdrawal.Status)
+	}
+	if withdrawal.ProviderRef != "bank-ref-1" || withdrawal.PayoutChannel != "PAYA" || withdrawal.ReceiptURL == "" {
+		t.Fatalf("receipt fields not persisted: %+v", withdrawal)
 	}
 
 	rejectWD, err := createWithdrawal.Execute(ctx, withdrawaluc.CreateWithdrawalInput{

@@ -87,11 +87,13 @@ func (r *WithdrawalRepository) Update(ctx context.Context, withdrawal *domainwit
 		UPDATE finance.withdrawals
 		SET status = $2,
 		    provider_ref = NULLIF($3, ''),
-		    reject_reason = NULLIF($4, ''),
-		    processed_at = $5,
+		    payout_channel = NULLIF($4, ''),
+		    receipt_url = NULLIF($5, ''),
+		    reject_reason = NULLIF($6, ''),
+		    processed_at = $7,
 		    updated_at = now()
 		WHERE id = $1
-	`, withdrawal.ID, string(withdrawal.Status), withdrawal.ProviderRef, withdrawal.RejectReason, withdrawal.ProcessedAt)
+	`, withdrawal.ID, string(withdrawal.Status), withdrawal.ProviderRef, withdrawal.PayoutChannel, withdrawal.ReceiptURL, withdrawal.RejectReason, withdrawal.ProcessedAt)
 	if err != nil {
 		return err
 	}
@@ -105,6 +107,8 @@ const withdrawalSelectSQL = `
 	SELECT id, user_id, amount, status,
 	       destination_hash,
 	       COALESCE(provider_ref, ''),
+	       COALESCE(payout_channel, ''),
+	       COALESCE(receipt_url, ''),
 	       COALESCE(reject_reason, ''),
 	       processed_at, created_at, updated_at
 	FROM finance.withdrawals
@@ -122,6 +126,8 @@ func scanWithdrawal(row rowScanner) (*domainwithdrawal.Withdrawal, error) {
 		&status,
 		&item.DestinationHash,
 		&item.ProviderRef,
+		&item.PayoutChannel,
+		&item.ReceiptURL,
 		&item.RejectReason,
 		&processedAt,
 		&item.CreatedAt,

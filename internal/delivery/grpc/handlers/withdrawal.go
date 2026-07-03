@@ -69,7 +69,10 @@ func (h *WithdrawalHandler) ListWithdrawals(ctx context.Context, req *financev1.
 
 func (h *WithdrawalHandler) ProcessWithdrawal(ctx context.Context, req *financev1.ProcessWithdrawalRequest) (*financev1.WithdrawalResponse, error) {
 	withdrawal, err := h.processWithdrawal.Execute(ctx, withdrawaluc.ProcessWithdrawalInput{
-		WithdrawalID: req.GetWithdrawalId(),
+		WithdrawalID:  req.GetWithdrawalId(),
+		ProviderRef:   req.GetProviderRef(),
+		PayoutChannel: req.GetPayoutChannel(),
+		ReceiptURL:    req.GetReceiptUrl(),
 	})
 	if err != nil {
 		return nil, mapWithdrawalError(err)
@@ -93,12 +96,14 @@ func toWithdrawalResponse(withdrawal *domainwithdrawal.Withdrawal) *financev1.Wi
 		return nil
 	}
 	resp := &financev1.WithdrawalResponse{
-		Id:          withdrawal.ID,
-		UserId:      withdrawal.UserID,
-		Amount:      withdrawaluc.FormatAmount(withdrawal.Amount),
-		Status:      string(withdrawal.Status),
-		ProviderRef: withdrawal.ProviderRef,
-		CreatedAt:   timestamppb.New(withdrawal.CreatedAt),
+		Id:            withdrawal.ID,
+		UserId:        withdrawal.UserID,
+		Amount:        withdrawaluc.FormatAmount(withdrawal.Amount),
+		Status:        string(withdrawal.Status),
+		ProviderRef:   withdrawal.ProviderRef,
+		PayoutChannel: withdrawal.PayoutChannel,
+		ReceiptUrl:    withdrawal.ReceiptURL,
+		CreatedAt:     timestamppb.New(withdrawal.CreatedAt),
 	}
 	if withdrawal.ProcessedAt != nil {
 		resp.ProcessedAt = timestamppb.New(*withdrawal.ProcessedAt)

@@ -229,6 +229,9 @@ message ListWithdrawalsRequest {
 message ProcessWithdrawalRequest {
   RequestContext context = 1;
   string withdrawal_id = 2;
+  string provider_ref = 3;
+  string payout_channel = 4;
+  string receipt_url = 5;
 }
 
 message RejectWithdrawalRequest {
@@ -245,6 +248,8 @@ message WithdrawalResponse {
   string provider_ref = 5;
   google.protobuf.Timestamp processed_at = 6;
   google.protobuf.Timestamp created_at = 7;
+  string payout_channel = 8;
+  string receipt_url = 9;
 }
 
 message WithdrawalsResponse {

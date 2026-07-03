@@ -9,8 +9,10 @@ import (
 
 // ProcessWithdrawalInput is the application input for UC-18.
 type ProcessWithdrawalInput struct {
-	WithdrawalID string
-	ProviderRef  string
+	WithdrawalID  string
+	ProviderRef   string
+	PayoutChannel string
+	ReceiptURL    string
 }
 
 // ProcessWithdrawal marks a pending withdrawal as COMPLETED.
@@ -26,7 +28,7 @@ func NewProcessWithdrawal(withdrawals domainwithdrawal.Repository, audit *auditu
 
 // Execute completes a reserved withdrawal after admin payout.
 func (uc *ProcessWithdrawal) Execute(ctx context.Context, input ProcessWithdrawalInput) (*domainwithdrawal.Withdrawal, error) {
-	if input.WithdrawalID == "" {
+	if input.WithdrawalID == "" || input.ProviderRef == "" || input.PayoutChannel == "" || input.ReceiptURL == "" {
 		return nil, domainwithdrawal.ErrInvalidInput
 	}
 
@@ -41,6 +43,8 @@ func (uc *ProcessWithdrawal) Execute(ctx context.Context, input ProcessWithdrawa
 	now := nowUTC()
 	withdrawal.Status = domainwithdrawal.StatusCompleted
 	withdrawal.ProviderRef = input.ProviderRef
+	withdrawal.PayoutChannel = input.PayoutChannel
+	withdrawal.ReceiptURL = input.ReceiptURL
 	withdrawal.ProcessedAt = &now
 	if err := uc.withdrawals.Update(ctx, withdrawal); err != nil {
 		return nil, err

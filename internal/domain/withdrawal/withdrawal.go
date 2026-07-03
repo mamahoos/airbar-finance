@@ -19,6 +19,8 @@ type Withdrawal struct {
 	Status          Status
 	DestinationHash string
 	ProviderRef     string
+	PayoutChannel   string
+	ReceiptURL      string
 	RejectReason    string
 	ProcessedAt     *time.Time
 	CreatedAt       time.Time

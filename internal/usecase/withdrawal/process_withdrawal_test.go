@@ -58,12 +58,20 @@ func TestProcessWithdrawalFromPending(t *testing.T) {
 	}
 	uc := NewProcessWithdrawal(repo, nil)
 
-	result, err := uc.Execute(context.Background(), ProcessWithdrawalInput{WithdrawalID: "wd-1"})
+	result, err := uc.Execute(context.Background(), ProcessWithdrawalInput{
+		WithdrawalID:   "wd-1",
+		ProviderRef:    "bank-ref-1",
+		PayoutChannel:  "PAYA",
+		ReceiptURL:     "https://receipts.example/wd-1",
+	})
 	if err != nil {
 		t.Fatalf("Execute() error = %v", err)
 	}
 	if result.Status != domainwithdrawal.StatusCompleted {
 		t.Fatalf("status = %q, want COMPLETED", result.Status)
+	}
+	if result.ProviderRef != "bank-ref-1" || result.PayoutChannel != "PAYA" || result.ReceiptURL == "" {
+		t.Fatalf("receipt fields not persisted: %+v", result)
 	}
 }
 
