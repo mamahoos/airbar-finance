@@ -1,38 +1,45 @@
-# Staging deploy — pre-built image from GHCR.
-# Requires on the server:
-#   - .env.staging (copy from .env.staging.example; never commit secrets)
-#   - IMAGE_TAG set by CI (e.g. ghcr.io/mamahoos/airbar-finance:sha-abc1234)
-#
-# Run migrations before first deploy:
-#   goose -dir internal/infrastructure/postgres/migrations postgres "$DATABASE_URL" up
+# Staging on company VPS — shared airbar-infra on airbar-net.
+# Server path: /srv/airbar.app/airbar-finance/
+# Requires: .env.staging on server (copy from .env.staging.example)
+# Prereq: airbar-infra running (airbar-postgres, airbar-redis on airbar-net)
+# DB bootstrap (once): CREATE DATABASE airbar_finance_staging;
 
 services:
-  postgres-finance:
-    container_name: airbar-finance-postgres-staging
-    env_file: .env.staging
-    ports:
-      - '${POSTGRES_PORT:-5436}:5432'
-
-  redis:
-    container_name: airbar-finance-redis-staging
-    ports:
-      - '${REDIS_PORT:-6383}:6379'
-
   airbar-finance:
     image: ${IMAGE_TAG:?IMAGE_TAG is required for staging deploy}
     container_name: airbar-finance-app-staging
     env_file: .env.staging
-    ports:
-      - '${APP_PORT:-8082}:8080'
-      - '${GRPC_PORT:-50053}:50051'
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      REDIS_URL: ${REDIS_URL:-redis://airbar-redis:6379/1}
+    networks:
+      airbar-net:
+        aliases:
+          - airbar-finance-app-staging
     restart: unless-stopped
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpus: 0.35
     logging:
       driver: json-file
       options:
         max-size: '10m'
         max-file: '3'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '-q',
+          '-O',
+          '-',
+          'http://localhost:8080/health/ready',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 networks:
-  internal:
-    name: airbar-staging
+  airbar-net:
     external: true
+    name: airbar-net

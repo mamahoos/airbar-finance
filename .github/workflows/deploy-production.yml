@@ -19,6 +19,11 @@ jobs:
     with:
       environment: production
       image-tag: ghcr.io/${{ github.repository }}:${{ inputs.image-tag }}
+      deploy-path: /srv/airbar.app/airbar-finance
+      compose-file: docker-compose.prod.yml
+      container-name: airbar-finance-app-prod
+      health-url: http://localhost:8080/health/ready
+      run-goose-migrations: true
     secrets:
       SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
       SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}

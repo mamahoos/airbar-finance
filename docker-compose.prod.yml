@@ -1,40 +1,43 @@
-# Production deploy — pre-built image from GHCR, no host port exposure.
-# Requires on the server:
-#   - .env.production (copy from .env.production.example; never commit secrets)
-#   - IMAGE_TAG set by CI (e.g. ghcr.io/mamahoos/airbar-finance:v1.2.3)
-#   - Reverse proxy (nginx/traefik) on the shared Docker network for public HTTP/gRPC
-#
-# Run migrations before deploy:
-#   goose -dir internal/infrastructure/postgres/migrations postgres "$DATABASE_URL" up
+# Production on company VPS — shared airbar-infra on airbar-net.
+# Manual deploy only (workflow_dispatch). No host port exposure.
+# Requires: .env.production on server + reverse proxy on airbar-net.
 
 services:
-  postgres-finance:
-    container_name: airbar-finance-postgres-prod
-    env_file: .env.production
-    restart: always
-
-  redis:
-    container_name: airbar-finance-redis-prod
-    env_file: .env.production
-    restart: always
-
   airbar-finance:
     image: ${IMAGE_TAG:?IMAGE_TAG is required for production deploy}
     container_name: airbar-finance-app-prod
     env_file: .env.production
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      REDIS_URL: ${REDIS_URL:-redis://airbar-redis:6379/1}
+    networks:
+      airbar-net:
+        aliases:
+          - airbar-finance-app-prod
     restart: always
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpus: 0.35
     logging:
       driver: json-file
       options:
         max-size: '50m'
         max-file: '5'
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 512M
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '-q',
+          '-O',
+          '-',
+          'http://localhost:8080/health/ready',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 networks:
-  internal:
-    name: airbar-prod
+  airbar-net:
     external: true
+    name: airbar-net

@@ -1,10 +1,9 @@
 # Base stack — shared service definitions for all environments.
 # Use with an overlay:
 #   dev:     docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
-#   staging: COMPOSE_PROJECT_NAME=airbar-finance-staging IMAGE_TAG=ghcr.io/... \
-#            docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d
-#   prod:    COMPOSE_PROJECT_NAME=airbar-finance-prod IMAGE_TAG=ghcr.io/... \
-#            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#   staging: IMAGE_TAG=ghcr.io/... docker compose -f docker-compose.staging.yml up -d
+#            (server: /srv/airbar.app/airbar-finance/, shared airbar-net + airbar-postgres)
+#   prod:    IMAGE_TAG=ghcr.io/... docker compose -f docker-compose.prod.yml up -d
 
 name: ${COMPOSE_PROJECT_NAME:-airbar-finance}
 

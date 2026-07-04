@@ -11,10 +11,26 @@ on:
         description: "Full image tag to deploy, e.g. ghcr.io/org/repo:sha-abc1234"
         type: string
         required: true
-      grpc-port:
-        description: "gRPC port to run health check against"
+      deploy-path:
+        description: "Absolute path on the server, e.g. /srv/airbar.app/airbar-finance"
         type: string
-        default: "50051"
+        required: true
+      compose-file:
+        description: "Compose file relative to deploy-path"
+        type: string
+        default: "docker-compose.staging.yml"
+      container-name:
+        description: "Container name for health checks"
+        type: string
+        required: true
+      health-url:
+        description: "HTTP readiness URL inside the container"
+        type: string
+        default: "http://localhost:8080/health/ready"
+      run-goose-migrations:
+        description: "Run goose migrations before compose up (finance only)"
+        type: boolean
+        default: false
       health-retries:
         description: "Number of health check attempts before failing"
         type: number
@@ -67,49 +83,67 @@ jobs:
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
             "docker pull ${{ inputs.image-tag }}"
 
-      - name: Sync compose files to server
+      - name: Sync deploy files to server
         run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p "${{ secrets.SSH_PORT || '22' }}" \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "mkdir -p '${{ inputs.deploy-path }}/migrations'"
+
           scp -i ~/.ssh/deploy_key \
             -P "${{ secrets.SSH_PORT || '22' }}" \
-            docker-compose.yml \
-            docker-compose.dev.yml \
-            docker-compose.staging.yml \
-            docker-compose.prod.yml \
-            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/airbar-finance/"
+            "${{ inputs.compose-file }}" \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ inputs.deploy-path }}/"
 
-      - name: Deploy with Docker Compose
+          if [ "${{ inputs.run-goose-migrations }}" = "true" ]; then
+            scp -i ~/.ssh/deploy_key \
+              -P "${{ secrets.SSH_PORT || '22' }}" \
+              -r internal/infrastructure/postgres/migrations/. \
+              "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ inputs.deploy-path }}/migrations/"
+          fi
+
+      - name: Run goose migrations
+        if: inputs.run-goose-migrations
         run: |
-          COMPOSE_ENV="${{ inputs.environment }}"
-          if [ "$COMPOSE_ENV" = "production" ]; then
-            COMPOSE_ENV="prod"
+          ENV_FILE=".env.staging"
+          if [ "${{ inputs.environment }}" = "production" ]; then
+            ENV_FILE=".env.production"
           fi
           ssh -i ~/.ssh/deploy_key \
             -p "${{ secrets.SSH_PORT || '22' }}" \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
-            "docker network create airbar-${COMPOSE_ENV} 2>/dev/null || true && \
-             cd ~/airbar-finance && \
-             COMPOSE_PROJECT_NAME=airbar-finance-${COMPOSE_ENV} \
-             COMPOSE_FILE=docker-compose.yml:docker-compose.${COMPOSE_ENV}.yml \
+            "set -eu
+             cd '${{ inputs.deploy-path }}'
+             set -a
+             # shellcheck disable=SC1091
+             . ./${ENV_FILE}
+             set +a
+             docker run --rm --network airbar-net \
+               -v '${{ inputs.deploy-path }}/migrations:/migrations' \
+               pressly/goose:3.24.1 \
+               goose -dir /migrations postgres \"\${DATABASE_URL}\" up"
+
+      - name: Deploy with Docker Compose
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p "${{ secrets.SSH_PORT || '22' }}" \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "cd '${{ inputs.deploy-path }}' && \
              IMAGE_TAG=${{ inputs.image-tag }} \
-             docker compose up -d --remove-orphans"
+             docker compose -f '${{ inputs.compose-file }}' up -d --remove-orphans"
 
       - name: Wait for service to be ready
         run: |
           echo "Running health check (up to ${{ inputs.health-retries }} attempts)..."
           for i in $(seq 1 ${{ inputs.health-retries }}); do
             echo "Attempt $i/${{ inputs.health-retries }}..."
-            result=$(ssh -i ~/.ssh/deploy_key \
+            if ssh -i ~/.ssh/deploy_key \
               -p "${{ secrets.SSH_PORT || '22' }}" \
               "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
-              "GRPC_ADDR=localhost:${{ inputs.grpc-port }} \
-               go run ./scripts/check_ready 2>&1" || true)
-
-            if echo "$result" | grep -q "ready=true"; then
+              "docker exec ${{ inputs.container-name }} wget -q -O /dev/null '${{ inputs.health-url }}'"; then
               echo "✅ Service is ready."
               exit 0
             fi
-
-            echo "Not ready yet: $result"
             sleep ${{ inputs.health-interval }}
           done
           echo "❌ Service did not become ready in time."
