@@ -15,7 +15,7 @@ on:
 
 concurrency:
   group: deploy-staging
-  cancel-in-progress: false
+  cancel-in-progress: false  # never abort an in-progress SSH deploy
 
 jobs:
   deploy:
