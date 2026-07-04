@@ -58,13 +58,13 @@ sudo chown -R debian:debian /srv/airbar.app/airbar-finance /srv/airbar.app/airba
 cp .env.staging.example .env.staging   # in each repo dir
 ```
 
-## Deploy flow (automated staging)
+## Deploy flow
 
-1. Merge to `main` → CI passes
-2. GitHub Actions builds + pushes image to GHCR
-3. SSH to server → pull image → goose/prisma migrate → `docker compose -f docker-compose.staging.yml up -d`
+1. Merge to `main` → **CI** runs (tests, lint, build)
+2. CI success → **Staging** workflow builds & pushes `:staging` + `:sha-<commit>` to GHCR (no SSH)
+3. When infra is ready → run **Deploy — Staging** manually (`workflow_dispatch`) to SSH, migrate, and start containers
 4. Health check via `docker exec` + wget inside container
 
-Deploy is **manual only** (`workflow_dispatch`) until staging infra is approved — CI still runs on every merge.
+Server deploy stays manual until staging bootstrap and secrets are explicitly approved.
 
 See [staging-nginx-snippet.conf](./staging-nginx-snippet.conf) for CTO DNS/nginx request (`staging.api.airbar.app`).

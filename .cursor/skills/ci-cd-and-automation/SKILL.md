@@ -297,8 +297,42 @@ Slow CI pipeline?
 │   └── Shard test suites across multiple runners
 ├── Optimize the test suite
 │   └── Remove slow tests from the critical path, run them on a schedule instead
-└── Use larger runners
+    └── Use larger runners
     └── GitHub-hosted larger runners or self-hosted for CPU-heavy builds
+
+### Concurrency — only the latest commit wins
+
+When pushes arrive faster than CI completes, run **one pipeline per branch/ref** and cancel stale work:
+
+```yaml
+# CI / PR checks — cancel superseded runs on the same ref
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Staging image build — one at a time per repo; cancel older builds
+concurrency:
+  group: staging-${{ github.repository }}
+  cancel-in-progress: true
+```
+
+Add a **latest-commit guard** on `workflow_run` downstream jobs (staging deploy image) so a CI run that finished just before cancel still does not build:
+
+```yaml
+- uses: actions/checkout@v4
+  with: { ref: main, fetch-depth: 1 }
+- id: check
+  run: |
+    if [ "$(git rev-parse HEAD)" = "${{ github.event.workflow_run.head_sha }}" ]; then
+      echo "should_build=true" >> "$GITHUB_OUTPUT"
+    else
+      echo "should_build=false" >> "$GITHUB_OUTPUT"
+    fi
+```
+
+**Deploy (SSH):** keep `cancel-in-progress: false` — never abort a live deploy mid-flight. Queue a second manual run instead.
+
+This is standard GitHub Actions practice for self-hosted runners with limited capacity.
 
 Example: caching and parallelism
 jobs:

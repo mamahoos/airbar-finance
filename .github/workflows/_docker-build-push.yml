@@ -15,6 +15,11 @@ on:
         description: "Whether to push the image to the registry"
         type: boolean
         default: true
+      ref:
+        description: "Git ref to checkout (commit SHA or branch); defaults to github.sha"
+        type: string
+        required: false
+        default: ""
     outputs:
       image-digest:
         description: "SHA256 digest of the pushed image"
@@ -40,6 +45,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref != '' && inputs.ref || github.sha }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

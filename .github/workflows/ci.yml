@@ -8,7 +8,7 @@ on:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: true  # newer push on same ref cancels in-flight CI (best practice)
 
 env:
   GO_VERSION: "1.25" 
