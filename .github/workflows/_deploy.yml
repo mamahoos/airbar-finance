@@ -120,8 +120,9 @@ jobs:
              set +a
              docker run --rm --network airbar-net \
                -v '${{ inputs.deploy-path }}/migrations:/migrations' \
-               pressly/goose:3.24.1 \
-               goose -dir /migrations postgres \"\${DATABASE_URL}\" up"
+               -e GOOSE_DRIVER=postgres \
+               -e GOOSE_DBSTRING=\"\${DATABASE_URL}\" \
+               kukymbr/goose-docker:3.24.1"
 
       - name: Deploy with Docker Compose
         run: |

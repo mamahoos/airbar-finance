@@ -7,8 +7,8 @@ TEST_DATABASE_URL ?= $(DATABASE_URL)
 
 COMPOSE := docker compose -f docker-compose.yml
 COMPOSE_DEV := $(COMPOSE) -f docker-compose.dev.yml
-COMPOSE_STAGING := $(COMPOSE) -f docker-compose.staging.yml
-COMPOSE_PROD := $(COMPOSE) -f docker-compose.prod.yml
+COMPOSE_STAGING := docker compose -f docker-compose.staging.yml
+COMPOSE_PROD := docker compose -f docker-compose.prod.yml
 
 .PHONY: up up-dev up-staging up-prod down migrate-up migrate-down migrate-status proto build test test-integration vet verify
 
@@ -18,15 +18,13 @@ up: ## Start dev postgres + redis only
 up-dev: ## Start full dev stack (build app image)
 	$(COMPOSE_DEV) up -d --build
 
-up-staging: ## Deploy staging stack (requires IMAGE_TAG)
+up-staging: ## Deploy staging stack on server (requires IMAGE_TAG + airbar-net)
 	@test -n "$(IMAGE_TAG)" || (echo "IMAGE_TAG is required" && exit 1)
-	docker network create airbar-staging 2>/dev/null || true
-	COMPOSE_PROJECT_NAME=airbar-finance-staging IMAGE_TAG=$(IMAGE_TAG) $(COMPOSE_STAGING) up -d --remove-orphans
+	IMAGE_TAG=$(IMAGE_TAG) $(COMPOSE_STAGING) up -d --remove-orphans
 
-up-prod: ## Deploy production stack (requires IMAGE_TAG)
+up-prod: ## Deploy production stack on server (requires IMAGE_TAG + airbar-net)
 	@test -n "$(IMAGE_TAG)" || (echo "IMAGE_TAG is required" && exit 1)
-	docker network create airbar-prod 2>/dev/null || true
-	COMPOSE_PROJECT_NAME=airbar-finance-prod IMAGE_TAG=$(IMAGE_TAG) $(COMPOSE_PROD) up -d --remove-orphans
+	IMAGE_TAG=$(IMAGE_TAG) $(COMPOSE_PROD) up -d --remove-orphans
 
 down: ## Stop dev stack
 	$(COMPOSE_DEV) down
