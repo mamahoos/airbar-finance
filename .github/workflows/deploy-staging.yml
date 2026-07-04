@@ -47,6 +47,11 @@ jobs:
     with:
       environment: staging
       image-tag: ghcr.io/${{ github.repository }}:sha-${{ github.event.workflow_run.head_sha }}
+      deploy-path: /srv/airbar.app/airbar-finance
+      compose-file: docker-compose.staging.yml
+      container-name: airbar-finance-app-staging
+      health-url: http://localhost:8080/health/ready
+      run-goose-migrations: true
     secrets:
       SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
       SSH_USER: ${{ secrets.STAGING_SSH_USER }}

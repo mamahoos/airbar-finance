@@ -17,6 +17,18 @@ make verify                # vet, unit tests, build
 
 ## Docker workflows
 
+Compose uses a **base + overlay** pattern:
+
+| Overlay | Purpose | Command |
+| ------- | ------- | ------- |
+| `docker-compose.dev.yml` | Local dev (build + host ports) | `make up-dev` |
+| `docker-compose.staging.yml` | Staging deploy (GHCR image) | `make up-staging IMAGE_TAG=ghcr.io/...` |
+| `docker-compose.prod.yml` | Production deploy (GHCR image) | `make up-prod IMAGE_TAG=ghcr.io/...` |
+
+Host ports (dev): Postgres **5434**, Redis **6381**, HTTP **8080**, gRPC **50051**.
+
+Staging/production use the shared **`airbar-net`** network with airbar-infra (postgres, redis, nginx). See `.env.staging.example` / `.env.production.example`.
+
 ### Dependencies only (DB + Redis)
 
 ```bash
@@ -29,11 +41,10 @@ go run ./cmd/server        # uses .env (localhost URLs)
 
 ```bash
 cp .env.example .env
-docker build -t airbar-finance:local .
-docker compose up -d
+make up-dev
 ```
 
-`docker-compose.yml` overrides `DATABASE_URL` and `REDIS_URL` for in-compose hostnames (`postgres-finance`, `redis`). Other keys come from `.env`.
+Overlays merge with `docker-compose.yml` and override `DATABASE_URL` / `REDIS_URL` for in-compose hostnames (`postgres-finance`, `redis`). App-specific keys come from `.env`, `.env.staging`, or `.env.production`.
 
 ### Health checks
 
@@ -46,8 +57,11 @@ GRPC_ADDR=localhost:50051 go run ./scripts/check_ready
 
 | File | Commit? | Purpose |
 |------|---------|---------|
-| `.env.example` | Yes | Template for all required variables |
+| `.env.example` | Yes | Template for local dev |
+| `.env.staging.example` | Yes | Template for staging deploy server |
+| `.env.production.example` | Yes | Template for production deploy server |
 | `.env` | **No** | Local overrides (gitignored) |
+| `.env.staging` / `.env.production` | **No** | Server secrets (gitignored) |
 
 Production deployments must inject env via the orchestrator — not via `.env` on disk.
 

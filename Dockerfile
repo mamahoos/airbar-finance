@@ -7,7 +7,7 @@ COPY . .
 RUN CGO_ENABLED=0 go build -buildvcs=false -o /bin/airbar-finance ./cmd/server
 
 FROM alpine:3.24
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates wget
 COPY --from=builder /bin/airbar-finance /usr/local/bin/airbar-finance
 EXPOSE 8080 50051
 ENTRYPOINT ["airbar-finance"]

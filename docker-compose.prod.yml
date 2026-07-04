@@ -1,0 +1,43 @@
+# Production on company VPS — shared airbar-infra on airbar-net.
+# Manual deploy only (workflow_dispatch). No host port exposure.
+# Requires: .env.production on server + reverse proxy on airbar-net.
+
+services:
+  airbar-finance:
+    image: ${IMAGE_TAG:?IMAGE_TAG is required for production deploy}
+    container_name: airbar-finance-app-prod
+    env_file: .env.production
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      REDIS_URL: ${REDIS_URL:-redis://airbar-redis:6379/1}
+    networks:
+      airbar-net:
+        aliases:
+          - airbar-finance-app-prod
+    restart: always
+    mem_limit: 512m
+    memswap_limit: 512m
+    cpus: 0.35
+    logging:
+      driver: json-file
+      options:
+        max-size: '50m'
+        max-file: '5'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '-q',
+          '-O',
+          '-',
+          'http://localhost:8080/health/ready',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+networks:
+  airbar-net:
+    external: true
+    name: airbar-net
