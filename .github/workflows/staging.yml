@@ -1,0 +1,46 @@
+# Auto-build staging image after CI passes on main.
+# Pushes to GHCR only — does NOT SSH to the company VPS.
+# Server deploy: run "Deploy — Staging" manually when ready.
+
+name: Staging
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types:
+      - completed
+
+concurrency:
+  group: staging-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  guard:
+    name: check CI result
+    runs-on: self-hosted
+    timeout-minutes: 2
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - run: echo "CI passed — building staging image"
+
+  build-push:
+    name: build & push image
+    needs: guard
+    uses: ./.github/workflows/_docker-build-push.yml
+    with:
+      ref: ${{ github.event.workflow_run.head_sha }}
+      image: ghcr.io/${{ github.repository }}
+      tags: |
+        ghcr.io/${{ github.repository }}:staging
+        ghcr.io/${{ github.repository }}:sha-${{ github.event.workflow_run.head_sha }}
+      push: true
+    permissions:
+      actions: read
+      checks: read
+      contents: read
+      packages: write
+      security-events: write
