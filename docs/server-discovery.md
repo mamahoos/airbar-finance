@@ -38,7 +38,7 @@ Existing public subdomains (nginx): `api.airbar.app`, `ffinance.airbar.app`, `ad
 
 Finance: internal gRPC only (`airbar-finance-app-staging:50051` on `airbar-net`).
 
-Core: public HTTP via nginx → **`staging-api.airbar.app`** (DNS record by CTO).
+Core: public HTTP via nginx → **`staging.api.airbar.app`** (DNS record by CTO).
 
 ## One-time server bootstrap
 
@@ -65,4 +65,6 @@ cp .env.staging.example .env.staging   # in each repo dir
 3. SSH to server → pull image → goose/prisma migrate → `docker compose -f docker-compose.staging.yml up -d`
 4. Health check via `docker exec` + wget inside container
 
-See [staging-nginx-snippet.conf](./staging-nginx-snippet.conf) for CTO DNS/nginx request.
+Deploy is **manual only** (`workflow_dispatch`) until staging infra is approved — CI still runs on every merge.
+
+See [staging-nginx-snippet.conf](./staging-nginx-snippet.conf) for CTO DNS/nginx request (`staging.api.airbar.app`).

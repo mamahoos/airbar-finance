@@ -1,11 +1,13 @@
+# Manual only — do NOT auto-deploy to the company VPS.
+# Staging server deploy is gated until infra/bootstrap is explicitly approved.
+# CI (ci.yml) still runs automatically on every PR and push to main.
+#
+# When ready (months later): run manually from Actions → Deploy — Staging.
+
 name: Deploy — Staging
 
 on:
-  workflow_run:
-    workflows: ["CI"]
-    branches: [main]
-    types:
-      - completed
+  workflow_dispatch:
 
 concurrency:
   group: deploy-staging
@@ -15,23 +17,14 @@ env:
   IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
-  guard:
-    name: check CI result
-    runs-on: self-hosted
-    timeout-minutes: 2
-    if: github.event.workflow_run.conclusion == 'success'
-    steps:
-      - run: echo "CI passed — proceeding to staging deploy"
-
   build-push:
     name: build & push image
-    needs: guard
     uses: ./.github/workflows/_docker-build-push.yml
     with:
       image: ghcr.io/${{ github.repository }}
       tags: |
         ghcr.io/${{ github.repository }}:staging
-        ghcr.io/${{ github.repository }}:sha-${{ github.event.workflow_run.head_sha }}
+        ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
       push: true
     permissions:
       actions: read
@@ -46,7 +39,7 @@ jobs:
     uses: ./.github/workflows/_deploy.yml
     with:
       environment: staging
-      image-tag: ghcr.io/${{ github.repository }}:sha-${{ github.event.workflow_run.head_sha }}
+      image-tag: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
       deploy-path: /srv/airbar.app/airbar-finance
       compose-file: docker-compose.staging.yml
       container-name: airbar-finance-app-staging
