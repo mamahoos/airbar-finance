@@ -84,6 +84,7 @@ jobs:
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v4
         if: always()
+        continue-on-error: true  # repo has no GitHub code scanning; scan still runs above
         env:
           CODEQL_TELEMETRY: false
         with:
