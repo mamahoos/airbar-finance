@@ -38,7 +38,9 @@ Existing public subdomains (nginx): `api.airbar.app`, `ffinance.airbar.app`, `ad
 
 Finance: internal gRPC only (`airbar-finance-app-staging:50051` on `airbar-net`).
 
-Core: public HTTP via nginx → **`staging.api.airbar.app`** (DNS record by CTO).
+Core: public HTTP via nginx → **`staging.api.airbar.app`** (DNS A → origin; **gray cloud** — nested subdomain not covered by CF `*.airbar.app` wildcard).
+
+Finance public HTTP (webhooks): **`staging.finance.airbar.app`** (same gray-cloud pattern).
 
 ## One-time server bootstrap
 
