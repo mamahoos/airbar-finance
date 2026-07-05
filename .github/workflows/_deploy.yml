@@ -137,7 +137,7 @@ jobs:
             -p "${{ secrets.SSH_PORT || '22' }}" \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
             "cd '${{ inputs.deploy-path }}' && \
-             IMAGE_TAG=${{ inputs.image-tag }} \
+             export IMAGE_TAG='${{ inputs.image-tag }}' && \
              ENV_FILE=.env.staging && \
              [ '${{ inputs.environment }}' = 'production' ] && ENV_FILE=.env.production || true && \
              docker compose --env-file \"\${ENV_FILE}\" -f '${{ inputs.compose-file }}' up -d --remove-orphans"
