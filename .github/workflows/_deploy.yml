@@ -58,6 +58,9 @@ jobs:
     name: deploy to ${{ inputs.environment }}
     runs-on: self-hosted
     timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read
     environment: ${{ inputs.environment }}
     outputs:
       duration: ${{ steps.timer.outputs.duration }}
@@ -76,12 +79,16 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p "${{ secrets.SSH_PORT || '22' }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Pull image on server
+      - name: Log in to GHCR on server and pull image
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.repository_owner }}
+          IMAGE_TAG: ${{ inputs.image-tag }}
         run: |
           ssh -i ~/.ssh/deploy_key \
             -p "${{ secrets.SSH_PORT || '22' }}" \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
-            "docker pull ${{ inputs.image-tag }}"
+            "echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u '${{ github.repository_owner }}' --password-stdin && docker pull '${{ inputs.image-tag }}'"
 
       - name: Sync deploy files to server
         run: |
