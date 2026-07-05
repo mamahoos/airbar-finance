@@ -69,4 +69,24 @@ cp .env.staging.example .env.staging   # in each repo dir
 
 Server deploy stays manual until staging bootstrap and secrets are explicitly approved.
 
+## GHCR on VPS
+
+Deploy workflow logs in to GHCR before each pull (uses `GITHUB_TOKEN` or optional `GHCR_READ_TOKEN` secret).
+
+For **manual** `docker pull` on the VPS (without running Deploy — Staging):
+
+1. Create a classic PAT with `read:packages`.
+2. Add repo secret: `GHCR_READ_TOKEN` (same value in **airbar-finance** and **airbar-core**).
+3. On VPS as root:
+
+```bash
+GHCR_READ_TOKEN='ghp_...' ./scripts/ghcr-vps-login.sh
+docker pull ghcr.io/mamahoos/airbar-finance:staging
+docker pull ghcr.io/mamahoos/airbar-core:staging
+```
+
+## Cloudflare staging DNS
+
+Nested staging subdomains must stay gray-cloud. See [infra-patches/cloudflare-staging-proxy-off.md](./infra-patches/cloudflare-staging-proxy-off.md).
+
 See [staging-nginx-snippet.conf](./staging-nginx-snippet.conf) for CTO DNS/nginx request (`staging.api.airbar.app`).
