@@ -131,7 +131,9 @@ jobs:
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
             "cd '${{ inputs.deploy-path }}' && \
              IMAGE_TAG=${{ inputs.image-tag }} \
-             docker compose -f '${{ inputs.compose-file }}' up -d --remove-orphans"
+             ENV_FILE=.env.staging && \
+             [ '${{ inputs.environment }}' = 'production' ] && ENV_FILE=.env.production || true && \
+             docker compose --env-file \"\${ENV_FILE}\" -f '${{ inputs.compose-file }}' up -d --remove-orphans"
 
       - name: Wait for service to be ready
         run: |
